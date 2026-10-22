@@ -683,6 +683,11 @@ begin
   if not found or o.payment_method <> 'online' or o.payment_status not in ('pending', 'failed') then
     raise exception 'ORDER_NOT_PAYABLE' using errcode = '22023';
   end if;
+  -- Same session handed back again (gateway idempotency on a retried submit).
+  if exists (select 1 from public.payments where provider = p_provider and kind = 'charge'
+             and provider_ref = p_provider_ref and order_id = o.id and status = 'pending') then
+    return;
+  end if;
   -- Older open sessions for this order are superseded.
   update public.payments set status = 'cancelled'
     where order_id = o.id and kind = 'charge' and status = 'pending';

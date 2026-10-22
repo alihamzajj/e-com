@@ -347,6 +347,12 @@ describe("fulfilment, payments and refunds", () => {
       await db.as(service, `select public.attach_payment_session($1, 'stripe', 'cs_test_1', 'https://checkout.example/cs_test_1')`, [orderId]);
     });
 
+    it("treats re-attaching the same gateway session as a no-op", async () => {
+      await db.as(service, `select public.attach_payment_session($1, 'stripe', 'cs_test_1', 'https://checkout.example/cs_test_1')`, [orderId]);
+      const open = await db.sql(`select id from public.payments where order_id = $1 and status = 'pending'`, [orderId]);
+      expect(open).toHaveLength(1);
+    });
+
     it("cannot be confirmed or marked paid by staff without gateway evidence", async () => {
       await expect(db.as(user(admin), `select public.admin_update_order_status($1, 'confirmed')`, [orderId]))
         .rejects.toThrow(/PAYMENT_NOT_VERIFIED/);

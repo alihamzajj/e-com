@@ -6,7 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:db": "vitest run tests/db",
+    "test:e2e": "playwright test",
+    "db:bundle": "node scripts/bundle-migrations.mjs",
+    "db:types": "supabase gen types typescript --linked --schema public > src/types/database.ts",
+    "images:demo": "node scripts/generate-demo-images.mjs",
+    "test:live": "vitest run tests/live"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.2",
@@ -38,5 +47,8 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.12"
+  },
+  "engines": {
+    "node": ">=20.9"
   }
 }

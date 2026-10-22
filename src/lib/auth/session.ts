@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/config/public";
@@ -9,6 +10,9 @@ export type SessionUser = { id: string; email: string | null };
 
 /** Verified identity from the session JWT (signature checked by getClaims). */
 export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
+  // Always touch the request first so session-dependent UI is never prerendered
+  // as "signed out", even in a build without Supabase configured.
+  await cookies();
   if (!isSupabaseConfigured()) return null;
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getClaims();

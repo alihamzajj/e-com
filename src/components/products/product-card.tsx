@@ -8,9 +8,9 @@ import { ProductImage } from "./product-image";
 import { AddToCartButton } from "./add-to-cart-button";
 import type { CatalogProduct } from "@/types/domain";
 
-type Props = { product: CatalogProduct; currency: string; locale: string; priority?: boolean };
+type Props = { product: CatalogProduct; currency: string; locale: string; priority?: boolean; revealIndex?: number };
 
-export function ProductCard({ product, currency, locale, priority }: Props) {
+export function ProductCard({ product, currency, locale, priority, revealIndex }: Props) {
   const href = `/products/${product.slug}`;
   const hasRange = product.max_variant_price > product.min_variant_price;
   // compare-at is the list price when the whole product is on sale.
@@ -20,7 +20,10 @@ export function ProductCard({ product, currency, locale, priority }: Props) {
   const singleVariant = product.variant_count === 1 && product.default_variant_id;
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-lg bg-card ring-1 ring-line-soft transition-shadow hover:shadow-[var(--shadow-card)]">
+    <article
+      data-reveal={revealIndex === undefined ? undefined : ""}
+      style={revealIndex === undefined ? undefined : ({ "--i": revealIndex } as React.CSSProperties)}
+      className="lift group relative flex flex-col overflow-hidden rounded-lg bg-card ring-1 ring-line-soft">
       <Link href={href} className="relative block aspect-square overflow-hidden bg-surface" tabIndex={-1} aria-hidden>
         <ProductImage
           src={product.image_url}
@@ -28,7 +31,7 @@ export function ProductCard({ product, currency, locale, priority }: Props) {
           fill
           sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 50vw"
           priority={priority}
-          className="transition-transform duration-500 group-hover:scale-[1.03]"
+          className="zoom-img"
         />
         <div className="absolute top-3 left-3 flex flex-col items-start gap-1">
           {off > 0 ? <Badge tone="accent">−{off}%</Badge> : null}
@@ -76,11 +79,24 @@ export function ProductCard({ product, currency, locale, priority }: Props) {
   );
 }
 
-export function ProductGrid({ products, currency, locale, className }: { products: CatalogProduct[]; currency: string; locale: string; className?: string }) {
+export function ProductGrid({
+  products,
+  currency,
+  locale,
+  className,
+  reveal,
+}: {
+  products: CatalogProduct[];
+  currency: string;
+  locale: string;
+  className?: string;
+  /** Stagger cards in as they scroll into view. */
+  reveal?: boolean;
+}) {
   return (
     <div className={className ?? "grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4"}>
       {products.map((p, i) => (
-        <ProductCard key={p.id} product={p} currency={currency} locale={locale} priority={i < 4} />
+        <ProductCard key={p.id} product={p} currency={currency} locale={locale} priority={i < 4} revealIndex={reveal ? i : undefined} />
       ))}
     </div>
   );

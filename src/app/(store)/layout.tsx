@@ -1,6 +1,7 @@
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { SetupNotice } from "@/components/store/setup-notice";
+import { MotionRoot } from "@/components/motion/motion-root";
 
 export default function StoreLayout({ children }: LayoutProps<"/">) {
   return (
@@ -17,6 +18,7 @@ export default function StoreLayout({ children }: LayoutProps<"/">) {
         {children}
       </main>
       <Footer />
+      <MotionRoot />
     </div>
   );
 }

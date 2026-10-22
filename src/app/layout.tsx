@@ -23,13 +23,20 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+// Turns entrance animations on before first paint (no flash). If the app's
+// JavaScript never starts, the class is removed after 3 s so nothing stays hidden.
+const MOTION_BOOT = `(function(){try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;var d=document.documentElement;d.classList.add('motion-ready');setTimeout(function(){if(!d.classList.contains('motion-live'))d.classList.remove('motion-ready')},3000)}catch(e){}})();`;
+
 export const viewport: Viewport = {
   themeColor: "#e9e9e6",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${body.variable} ${display.variable} antialiased`}>
+    <html lang="en" className={`${body.variable} ${display.variable} antialiased`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: MOTION_BOOT }} />
+      </head>
       <body className="min-h-dvh">
         {children}
         <Toaster position="bottom-right" richColors closeButton toastOptions={{ className: "font-sans" }} />

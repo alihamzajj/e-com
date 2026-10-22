@@ -15,7 +15,7 @@ export function SectionHeading({
   linkLabel?: string;
 }) {
   return (
-    <div className="flex items-end justify-between gap-4">
+    <div data-reveal className="flex items-end justify-between gap-4">
       <div>
         {eyebrow ? <p className="eyebrow mb-2">{eyebrow}</p> : null}
         <h2 id={id} className="display text-[clamp(2rem,4.5vw,3.5rem)] text-ink">
@@ -24,7 +24,7 @@ export function SectionHeading({
       </div>
       {href ? (
         <Link href={href} className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-ink hover:text-accent-strong">
-          {linkLabel ?? "View all"} <ArrowRight className="size-4" aria-hidden />
+          {linkLabel ?? "View all"} <ArrowRight className="nudge size-4" aria-hidden />
         </Link>
       ) : null}
     </div>

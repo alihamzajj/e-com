@@ -5,7 +5,7 @@ export function SetupNotice() {
   if (isSupabaseConfigured()) return null;
   return (
     <div role="status" className="bg-warning-soft px-4 py-2 text-center text-xs text-warning">
-      The store database is not connected. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY — see README.
+      Demo mode: showing sample products. Connect Supabase (see docs/SETUP.md) to enable accounts, checkout and the admin.
     </div>
   );
 }

@@ -35,13 +35,13 @@ export default async function HomePage() {
           {hero.subtitle || settings.tagline ? (
             <p className="mx-auto mt-6 max-w-md text-[15px] leading-relaxed text-ink-soft">{hero.subtitle || settings.tagline}</p>
           ) : null}
-          <Button asChild size="lg" className="mt-8">
+          <Button asChild size="lg" className="relative z-10 mt-8">
             <Link href={hero.cta_href || "/products"}>
               {hero.cta_label || "Shop collection"} <ChevronsRight aria-hidden />
             </Link>
           </Button>
           {hero.image_url ? (
-            <div className="relative mx-auto mt-6 aspect-[18/11] w-full max-w-6xl md:-mt-10">
+            <div className="pointer-events-none relative mx-auto mt-6 aspect-[18/11] w-full max-w-6xl md:-mt-10">
               <ProductImage src={hero.image_url} alt="" fill priority sizes="(min-width: 1280px) 1150px, 100vw" className="object-contain object-bottom" />
             </div>
           ) : (

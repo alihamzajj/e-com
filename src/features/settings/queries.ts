@@ -4,6 +4,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 import { isSupabaseConfigured } from "@/lib/config/public";
 import { toNumber } from "@/lib/utils/format";
 import type { ShippingMethod, StoreSettings } from "@/types/domain";
+import { DEMO_SETTINGS } from "@/features/catalog/demo-catalog";
 
 export const SETTINGS_TAG = "store-settings";
 
@@ -61,7 +62,8 @@ export async function getStoreSettings(): Promise<StoreSettings> {
   "use cache";
   cacheTag(SETTINGS_TAG);
   cacheLife("hours");
-  if (!isSupabaseConfigured()) return DEFAULT_SETTINGS;
+  // Demo mode (no database): sample content so the storefront can be previewed.
+  if (!isSupabaseConfigured()) return { ...DEFAULT_SETTINGS, ...DEMO_SETTINGS };
   const { data, error } = await createPublicClient().from("store_settings").select("*").eq("id", 1).maybeSingle();
   if (error) {
     console.error("[settings] failed to load store settings", error.message);

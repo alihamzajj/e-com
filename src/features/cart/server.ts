@@ -6,6 +6,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { isSupabaseConfigured } from "@/lib/config/public";
 import { toNumber } from "@/lib/utils/format";
 import type { CartQuote } from "@/types/domain";
+import { demoQuote } from "@/features/catalog/demo-catalog";
 
 /**
  * Cart storage. Signed-in customers: carts/cart_items (RLS: own rows only).
@@ -71,7 +72,6 @@ async function ensureUserCart(userId: string) {
 }
 
 export async function readCart(): Promise<CartEntry[]> {
-  if (!isSupabaseConfigured()) return [];
   const user = await getSessionUser();
   if (!user) return readGuestCart();
   const supabase = await createClient();
@@ -196,7 +196,7 @@ export async function quoteEntries(entries: CartEntry[], shippingMethod: string 
     free_shipping_threshold: null,
     coupon: null,
   };
-  if (!isSupabaseConfigured()) return { entries, quote: empty };
+  if (!isSupabaseConfigured()) return { entries, quote: entries.length ? demoQuote(entries, shippingMethod) : empty };
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("quote_cart", {
     p_items: entries.map((e) => ({ variant_id: e.variantId, quantity: e.quantity })),

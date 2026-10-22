@@ -2,6 +2,15 @@ import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/public";
 import { isSupabaseConfigured } from "@/lib/config/public";
+import {
+  demoCategories,
+  demoProductBySlug,
+  demoProductReviews,
+  demoRecentReviews,
+  demoSearch,
+  demoSitemap,
+  demoStock,
+} from "./demo-catalog";
 import { logServerError } from "@/lib/errors";
 import { toNumber } from "@/lib/utils/format";
 import type { CatalogProduct, Category, ProductDetail, ProductVariant, Review } from "@/types/domain";
@@ -97,7 +106,7 @@ async function runCatalogSearch(args: {
   limit: number;
   offset: number;
 }): Promise<CatalogProduct[]> {
-  if (!isSupabaseConfigured()) return [];
+  if (!isSupabaseConfigured()) return demoSearch(args);
   const { data, error } = await createPublicClient().rpc("catalog_search", {
     p_query: args.q ?? null,
     p_category_slug: args.category ?? null,
@@ -156,7 +165,7 @@ export async function getCategories(): Promise<Category[]> {
   "use cache";
   cacheTag("categories");
   cacheLife("hours");
-  if (!isSupabaseConfigured()) return [];
+  if (!isSupabaseConfigured()) return demoCategories();
   const { data, error } = await createPublicClient()
     .from("categories")
     .select("id, parent_id, name, slug, description, image_url, is_visible, sort_order")
@@ -185,7 +194,7 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
   "use cache";
   cacheTag("products", `product:${slug}`);
   cacheLife("minutes");
-  if (!isSupabaseConfigured()) return null;
+  if (!isSupabaseConfigured()) return demoProductBySlug(slug);
   const { data, error } = await createPublicClient()
     .from("products")
     .select(
@@ -235,7 +244,7 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
 
 /** Live stock levels — intentionally uncached; call inside a Suspense boundary. */
 export async function getVariantStock(productId: string): Promise<Record<string, number>> {
-  if (!isSupabaseConfigured()) return {};
+  if (!isSupabaseConfigured()) return demoStock(productId);
   const { data, error } = await createPublicClient()
     .from("product_variants")
     .select("id, stock_quantity")
@@ -252,7 +261,7 @@ export async function getProductReviews(productId: string, limit = 20): Promise<
   "use cache";
   cacheTag("reviews", `reviews:${productId}`);
   cacheLife("minutes");
-  if (!isSupabaseConfigured()) return [];
+  if (!isSupabaseConfigured()) return demoProductReviews(productId);
   const { data, error } = await createPublicClient()
     .from("reviews")
     .select("id, author_name, rating, title, body, created_at")
@@ -273,7 +282,7 @@ export async function getRecentReviews(limit = 6): Promise<HomeReview[]> {
   "use cache";
   cacheTag("reviews");
   cacheLife("hours");
-  if (!isSupabaseConfigured()) return [];
+  if (!isSupabaseConfigured()) return demoRecentReviews();
   const { data, error } = await createPublicClient()
     .from("reviews")
     .select("id, author_name, rating, title, body, created_at, product:products(name, slug)")
@@ -340,7 +349,7 @@ export async function getSitemapProducts(): Promise<{ slug: string; updated_at: 
   "use cache";
   cacheTag("products");
   cacheLife("hours");
-  if (!isSupabaseConfigured()) return [];
+  if (!isSupabaseConfigured()) return demoSitemap();
   const { data } = await createPublicClient()
     .from("products")
     .select("slug, updated_at")

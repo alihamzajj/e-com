@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, ChevronsRight, Quote, Sparkles } from "lucide-react";
+import { ArrowRight, Quote, Sparkles } from "lucide-react";
 import { getStoreSettings } from "@/features/settings/queries";
 import { getCategories, getProductRail, getRecentReviews } from "@/features/catalog/queries";
 import { ProductGrid } from "@/components/products/product-card";
@@ -7,6 +7,7 @@ import { ProductImage } from "@/components/products/product-image";
 import { Button } from "@/components/ui/button";
 import { RatingStars } from "@/components/ui/rating";
 import { NewsletterForm } from "@/components/store/newsletter-form";
+import { CurtainHero } from "@/components/store/curtain-hero";
 import { SectionHeading } from "@/components/store/section-heading";
 import { SplitWords } from "@/components/motion/split-words";
 import { formatMoney } from "@/lib/utils/format";
@@ -28,41 +29,13 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Hero */}
-      <section className="container-page pt-4 md:pt-6">
-        <div className="relative overflow-hidden rounded-2xl bg-surface px-5 pt-14 text-center md:pt-20">
-          <p
-            className="hero-fade mb-5 inline-flex items-center gap-2 rounded-full bg-card px-3 py-1 text-xs font-medium text-ink-soft ring-1 ring-line-soft"
-            style={{ "--d": "60ms" } as React.CSSProperties}
-          >
-            <span className="pulse-dot size-1.5 rounded-full bg-accent" aria-hidden /> {promo.eyebrow || "New season"}
-          </p>
-          <h1 className="hero-title display mx-auto max-w-5xl text-[clamp(3rem,10vw,7.75rem)] text-ink">
-            <SplitWords text={hero.title || settings.storeName} />
-          </h1>
-          {hero.subtitle || settings.tagline ? (
-            <p className="hero-fade mx-auto mt-6 max-w-md text-[15px] leading-relaxed text-ink-soft" style={{ "--d": "650ms" } as React.CSSProperties}>
-              {hero.subtitle || settings.tagline}
-            </p>
-          ) : null}
-          <div className="hero-fade relative z-10 mt-8" style={{ "--d": "800ms" } as React.CSSProperties}>
-            <Button asChild size="lg" className="group">
-              <Link href={hero.cta_href || "/products"}>
-                {hero.cta_label || "Shop collection"} <ChevronsRight className="nudge" aria-hidden />
-              </Link>
-            </Button>
-          </div>
-          {hero.image_url ? (
-            <div className="hero-image pointer-events-none relative mx-auto mt-6 aspect-[18/11] w-full max-w-6xl md:-mt-10">
-              <div className="hero-float absolute inset-0">
-                <ProductImage src={hero.image_url} alt="" fill priority sizes="(min-width: 1280px) 1150px, 100vw" className="object-contain object-bottom mix-blend-multiply" />
-              </div>
-            </div>
-          ) : (
-            <div className="h-16" />
-          )}
-        </div>
-      </section>
+      <CurtainHero
+        storeName={settings.storeName}
+        title={hero.title || settings.storeName}
+        subtitle={hero.subtitle || settings.tagline || undefined}
+        ctaLabel={hero.cta_label || "Shop collection"}
+        ctaHref={hero.cta_href || "/products"}
+      />
 
       <Ticker settings={settings} categories={categories.map((c) => c.name)} />
 

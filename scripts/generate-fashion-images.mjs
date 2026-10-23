@@ -211,3 +211,20 @@ for (const [name, svg] of Object.entries(images)) {
   await sharp(Buffer.from(svg)).webp({ quality: 86 }).toFile(path.join(OUT, `${name}.webp`));
 }
 console.log(`wrote ${Object.keys(images).length} images to public/demo/fashion`);
+
+// Transparent, tightly-trimmed cut-outs for the homepage hero product row.
+const cutout = (inner) => `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <defs>
+    <linearGradient id="shade" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.18"/><stop offset="55%" stop-color="#fff" stop-opacity="0"/><stop offset="100%" stop-color="#000" stop-opacity="0.16"/>
+    </linearGradient>
+    <filter id="drop" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000" flood-opacity="0.14"/></filter>
+  </defs>${inner}</svg>`;
+for (const [name, item, color] of [
+  ["cutout-dress-sand", "dress", "sand"],
+  ["cutout-crossbody-ember", "crossbody", "ember"],
+  ["cutout-tote-black", "tote", "black"],
+]) {
+  await sharp(Buffer.from(cutout(ITEMS[item](COLORS[color])))).trim({ threshold: 1 }).webp({ quality: 90, alphaQuality: 100 }).toFile(path.join(OUT, `${name}.webp`));
+}
+console.log("wrote hero cut-outs");

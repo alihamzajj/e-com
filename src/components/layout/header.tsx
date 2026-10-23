@@ -7,6 +7,7 @@ import { getCartCount } from "@/features/cart/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { SearchDialog } from "./search-dialog";
 import { MobileNav } from "./mobile-nav";
+import { NavLinks } from "./nav-links";
 import { Logo } from "./logo";
 
 const iconButton =
@@ -26,13 +27,7 @@ export async function Header() {
       <div className="container-page flex h-16 items-center gap-3 md:h-[72px]">
         <MobileNav links={nav} storeName={settings.storeName} />
         <Logo name={settings.storeName} logoUrl={settings.logoUrl} />
-        <nav aria-label="Main" className="mx-auto hidden items-center gap-7 md:flex">
-          {nav.map((item) => (
-            <Link key={item.href} href={item.href} prefetch className="text-[13px] font-medium text-ink-soft transition-colors hover:text-ink">
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <NavLinks links={nav} />
         <div className="ml-auto flex items-center gap-0.5 md:ml-0">
           <SearchDialog />
           <Suspense fallback={<span className={iconButton} aria-hidden><User /></span>}>

@@ -55,7 +55,7 @@ export default async function HomePage() {
           {hero.image_url ? (
             <div className="hero-image pointer-events-none relative mx-auto mt-6 aspect-[18/11] w-full max-w-6xl md:-mt-10">
               <div className="hero-float absolute inset-0">
-                <ProductImage src={hero.image_url} alt="" fill priority sizes="(min-width: 1280px) 1150px, 100vw" className="object-contain object-bottom" />
+                <ProductImage src={hero.image_url} alt="" fill priority sizes="(min-width: 1280px) 1150px, 100vw" className="object-contain object-bottom mix-blend-multiply" />
               </div>
             </div>
           ) : (

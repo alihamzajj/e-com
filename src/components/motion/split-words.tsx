@@ -1,3 +1,5 @@
+import { Fragment } from "react";
+
 /**
  * Wraps each word in a mask so CSS can slide words up one after another.
  * Screen readers get the plain sentence via aria-label.
@@ -7,10 +9,13 @@ export function SplitWords({ text, offset = 0 }: { text: string; offset?: number
   return (
     <span aria-label={text} role="text">
       {words.map((word, i) => (
-        <span key={`${word}-${i}`} aria-hidden className="split-word" style={{ "--i": i + offset } as React.CSSProperties}>
-          <span>{word}</span>
+        // The space sits outside the clipped inline-block, otherwise it collapses.
+        <Fragment key={`${word}-${i}`}>
+          <span aria-hidden className="split-word" style={{ "--i": i + offset } as React.CSSProperties}>
+            <span>{word}</span>
+          </span>
           {i < words.length - 1 ? " " : null}
-        </span>
+        </Fragment>
       ))}
     </span>
   );

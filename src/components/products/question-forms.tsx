@@ -75,7 +75,7 @@ export function ReportButton({ targetType, targetId }: { targetType: "question" 
   const [pending, startTransition] = useTransition();
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="inline-flex items-center gap-1 text-[11px] text-subtle hover:text-ink">
+      <DialogTrigger className="tap inline-flex items-center gap-1 text-xs text-subtle hover:text-ink">
         <Flag className="size-3" aria-hidden /> Report
       </DialogTrigger>
       <DialogContent title={`Report this ${targetType}`} description="Tell us what is wrong. Reports are reviewed by our team.">

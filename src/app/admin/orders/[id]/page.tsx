@@ -75,7 +75,7 @@ async function OrderDetail({ params }: { params: PageProps<"/admin/orders/[id]">
         />
       </SectionCard>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="grid content-start gap-5">
           <SectionCard title="Items" bodyClassName="p-0">
             <Table className="min-w-0">

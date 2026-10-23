@@ -83,7 +83,7 @@ export function CartLine({ line, currency, locale }: { line: QuoteLine; currency
             type="button"
             onClick={remove}
             disabled={pending}
-            className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-danger"
+            className="tap inline-flex items-center gap-1.5 text-xs text-muted hover:text-danger"
             aria-label={`Remove ${line.product_name}`}
           >
             <Trash2 className="size-3.5" aria-hidden /> Remove

@@ -78,7 +78,7 @@ function StatusDialog({ orderId, status, nextStatuses }: Pick<Props, "orderId" |
             </p>
           ) : null}
           {to === "shipped" ? (
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Tracking number" htmlFor="tracking"><Input id="tracking" value={tracking} onChange={(e) => setTracking(e.target.value)} maxLength={100} /></Field>
               <Field label="Tracking URL" htmlFor="tracking-url"><Input id="tracking-url" type="url" value={trackingUrl} onChange={(e) => setTrackingUrl(e.target.value)} placeholder="https://" /></Field>
             </div>

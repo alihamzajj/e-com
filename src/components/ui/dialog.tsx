@@ -31,7 +31,7 @@ export function DialogContent({
           {description ? <D.Description className="mt-1 text-sm text-muted">{description}</D.Description> : <D.Description className="sr-only">{title}</D.Description>}
         </div>
         {children}
-        <D.Close className="absolute top-4 right-4 rounded-sm p-1 text-muted hover:bg-surface hover:text-ink" aria-label="Close">
+        <D.Close className="tap absolute top-3 right-3 rounded-sm p-2 text-muted hover:bg-surface hover:text-ink" aria-label="Close">
           <X className="size-4" />
         </D.Close>
       </D.Content>
@@ -61,7 +61,7 @@ export function SheetContent({
         <div className="flex items-center justify-between border-b border-line-soft px-5 py-4">
           <D.Title className="text-sm font-semibold">{title}</D.Title>
           <D.Description className="sr-only">{title}</D.Description>
-          <D.Close className="rounded-sm p-1 text-muted hover:bg-surface hover:text-ink" aria-label="Close">
+          <D.Close className="tap -mr-1 rounded-sm p-2 text-muted hover:bg-surface hover:text-ink" aria-label="Close">
             <X className="size-4" />
           </D.Close>
         </div>

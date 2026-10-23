@@ -21,7 +21,7 @@ export async function ReviewsSection({ productId, productSlug, timezone, ratingA
   const distribution = [5, 4, 3, 2, 1].map((star) => ({ star, count: reviews.filter((r) => r.rating === star).length }));
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[280px_1fr]">
+    <div className="grid grid-cols-1 gap-10 lg:grid-cols-[280px_1fr]">
       <div className="space-y-4">
         {ratingCount > 0 ? (
           <>
@@ -96,7 +96,7 @@ export async function QuestionsSection({ productId, productSlug, timezone }: Bas
   }
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[280px_1fr]">
+    <div className="grid grid-cols-1 gap-10 lg:grid-cols-[280px_1fr]">
       <div className="space-y-4">
         <p className="text-sm text-muted">Questions are answered by our team and published here once answered.</p>
         {user ? (

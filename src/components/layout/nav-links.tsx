@@ -73,7 +73,7 @@ function NavLinksInner({ links, pathname }: { links: NavLink[]; pathname: string
               onFocus={(e) => moveTo(e.currentTarget, item.href)}
               onBlur={hide}
               className={cn(
-                "relative z-10 rounded-full px-4 py-2 text-[13px] font-medium transition-colors duration-200 focus-visible:outline-none",
+                "relative z-10 rounded-full px-3 py-2 text-[13px] lg:px-4 font-medium transition-colors duration-200 focus-visible:outline-none",
                 hovered === item.href || active ? "text-ink" : "text-ink-soft",
               )}
             >

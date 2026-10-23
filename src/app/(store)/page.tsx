@@ -74,7 +74,7 @@ export default async function HomePage() {
       {/* Statement */}
       {settings.tagline ? (
         <section className="container-page mt-24">
-          <div data-reveal-words className="grid items-end gap-8 rounded-2xl bg-card px-6 py-14 md:grid-cols-[1.6fr_1fr] md:px-14">
+          <div data-reveal-words className="grid grid-cols-1 items-end gap-8 rounded-2xl bg-card px-6 py-14 md:grid-cols-[1.6fr_1fr] md:px-14">
             <p className="display text-[clamp(2.4rem,6vw,5rem)] text-ink">
               <SplitWords text={settings.tagline} />
             </p>
@@ -161,7 +161,7 @@ export default async function HomePage() {
       {/* Newsletter */}
       {settings.newsletterEnabled ? (
         <section className="container-page mt-24">
-          <div data-reveal className="grid items-center gap-6 rounded-2xl bg-accent px-6 py-12 text-accent-ink md:grid-cols-2 md:px-14">
+          <div data-reveal className="grid grid-cols-1 items-center gap-6 rounded-2xl bg-accent px-6 py-12 text-accent-ink md:grid-cols-2 md:px-14">
             <div>
               <h2 className="display text-[clamp(2rem,4.5vw,3.5rem)]">Be first in line.</h2>
               <p className="mt-3 max-w-sm text-sm text-white/85">Restocks, new colourways and the occasional discount. No spam.</p>

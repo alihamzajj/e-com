@@ -104,6 +104,8 @@
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: -0.01em;
+    /* The condensed face has very narrow spaces; open them up a touch. */
+    word-spacing: 0.08em;
     line-height: 0.88;
   }
   .eyebrow {
@@ -112,6 +114,25 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--muted);
+  }
+  /* Invisible 44×44 px minimum hit area for small text links and icon buttons. */
+  .tap {
+    position: relative;
+  }
+  .tap::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+  /* Room under the footer for the pinned mobile buy bar on product pages. */
+  @media (max-width: 767px) {
+    html.has-buy-bar footer {
+      padding-bottom: 5.5rem;
+    }
   }
   .skeleton {
     background: linear-gradient(90deg, var(--line-soft) 0%, var(--surface) 50%, var(--line-soft) 100%);

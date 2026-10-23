@@ -126,7 +126,7 @@ export function FormSkeleton() {
   return (
     <div className="space-y-4" aria-busy="true" aria-label="Loading">
       <Skeleton className="h-8 w-60" />
-      <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
         <Skeleton className="h-96" />
         <Skeleton className="h-64" />
       </div>

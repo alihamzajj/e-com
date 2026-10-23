@@ -36,7 +36,7 @@ export function NewsletterForm() {
           required
           autoComplete="email"
           placeholder="you@example.com"
-          className="h-12 flex-1 rounded-sm border-0 bg-white px-4 text-sm text-ink placeholder:text-subtle focus-visible:outline-2 focus-visible:outline-ink"
+          className="h-12 w-full shrink-0 rounded-sm border-0 bg-white sm:w-auto sm:flex-1 px-4 text-sm text-ink placeholder:text-subtle focus-visible:outline-2 focus-visible:outline-ink"
         />
         {/* Honeypot for bots */}
         <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />

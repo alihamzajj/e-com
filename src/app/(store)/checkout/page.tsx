@@ -76,7 +76,7 @@ async function CheckoutContent() {
 
 function CheckoutSkeleton() {
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_400px]" aria-busy aria-label="Loading checkout">
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_400px]" aria-busy aria-label="Loading checkout">
       <div className="space-y-6">
         {[1, 2, 3].map((i) => (
           <div key={i} className="skeleton h-48 rounded-lg" />

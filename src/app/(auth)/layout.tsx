@@ -8,7 +8,7 @@ export default async function AuthLayout({ children }: LayoutProps<"/">) {
     <div className="flex min-h-dvh flex-col">
       <header className="container-page flex h-16 items-center justify-between">
         <Logo name={settings.storeName} logoUrl={settings.logoUrl} />
-        <Link href="/products" className="text-sm text-muted hover:text-ink">
+        <Link href="/products" className="tap text-sm text-muted hover:text-ink">
           Back to shop
         </Link>
       </header>

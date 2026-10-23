@@ -39,7 +39,7 @@ async function SupportDetail({ params }: { params: PageProps<"/admin/support/[id
         <ChevronLeft className="size-4" /> Support
       </Link>
       <PageHeading title={m.subject} description={`Received ${formatDateTime(m.created_at, settings.timezone, settings.locale)}`} actions={<Badge className="capitalize">{m.status}</Badge>} />
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
         <SectionCard title="Message">
           <p className="whitespace-pre-wrap text-sm leading-relaxed">{m.message}</p>
           <a

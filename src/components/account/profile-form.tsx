@@ -20,7 +20,7 @@ export function ProfileForm({ defaults, email }: { defaults: Values; email: stri
   return (
     <form
       noValidate
-      className="grid gap-4 sm:grid-cols-2"
+      className="grid grid-cols-1 gap-4 sm:grid-cols-2"
       onSubmit={handleSubmit((values) =>
         startTransition(async () => {
           const result = await updateProfileAction({ fullName: values.fullName, phone: values.phone, marketingOptIn: values.marketingOptIn });

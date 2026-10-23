@@ -14,7 +14,7 @@ type Props = {
 };
 
 export function QuantityStepper({ value, min = 1, max, onChange, disabled, label = "Quantity", size = "md" }: Props) {
-  const h = size === "sm" ? "h-8" : "h-11";
+  const h = size === "sm" ? "h-9" : "h-11";
   const btn = cn("inline-flex w-9 items-center justify-center text-ink transition hover:bg-surface disabled:opacity-30", h);
   return (
     <div className={cn("inline-flex items-stretch overflow-hidden rounded-sm border border-line bg-card", disabled && "opacity-60")}>

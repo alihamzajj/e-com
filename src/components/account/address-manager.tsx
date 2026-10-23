@@ -43,7 +43,7 @@ function AddressForm({ address, onDone }: { address?: Address; onDone: () => voi
   return (
     <form
       noValidate
-      className="grid gap-4 sm:grid-cols-2"
+      className="grid grid-cols-1 gap-4 sm:grid-cols-2"
       onSubmit={handleSubmit((values) =>
         startTransition(async () => {
           const result = await saveAddressAction({ ...values, id: address?.id });
@@ -116,7 +116,7 @@ export function AddressManager({ addresses }: { addresses: Address[] }) {
           <EmptyState icon={<MapPin />} title="No saved addresses" description="Save an address to check out faster." />
         </Card>
       ) : (
-        <ul className="grid gap-4 md:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {addresses.map((a) => (
             <li key={a.id}>
               <Card className="flex h-full flex-col gap-3 p-5">

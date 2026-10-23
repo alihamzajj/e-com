@@ -111,10 +111,10 @@ function FilterForm({ basePath, state, categories, lockCategory, currency, onDon
       </div>
 
       {!lockCategory && categories.length > 0 ? (
-        <fieldset className="space-y-2">
+        <fieldset className="lg:space-y-2">
           <legend className="mb-2 text-sm font-medium">Category</legend>
           {[{ slug: "", name: "All categories" }, ...categories].map((c) => (
-            <label key={c.slug || "all"} className="flex cursor-pointer items-center gap-2.5 text-sm text-ink-soft">
+            <label key={c.slug || "all"} className="flex min-h-10 cursor-pointer items-center gap-2.5 text-sm text-ink-soft lg:min-h-0">
               <input
                 type="radio"
                 name="category"
@@ -149,7 +149,7 @@ function FilterForm({ basePath, state, categories, lockCategory, currency, onDon
         </div>
       </fieldset>
 
-      <label className="flex cursor-pointer items-center gap-2.5 text-sm">
+      <label className="flex min-h-10 cursor-pointer items-center gap-2.5 text-sm lg:min-h-0">
         <Checkbox checked={inStock} onChange={(e) => setInStock(e.target.checked)} />
         In stock only
       </label>
@@ -223,7 +223,7 @@ export function ActiveFilterChips({ basePath, state, lockCategory, categories, c
         <li key={c.label}>
           <a
             href={buildHref(basePath, { ...state, ...c.next }, lockCategory)}
-            className="inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-1 text-xs font-medium text-ink ring-1 ring-line hover:ring-ink/40"
+            className="tap inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-1.5 text-xs font-medium text-ink ring-1 ring-line hover:ring-ink/40"
           >
             {c.label} <X className="size-3" aria-label="Remove filter" />
           </a>

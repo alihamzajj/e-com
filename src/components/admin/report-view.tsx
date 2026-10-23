@@ -46,7 +46,7 @@ export function ReportSkeleton() {
           <Skeleton key={i} className="h-24" />
         ))}
       </div>
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Skeleton className="h-80" />
         <Skeleton className="h-80" />
       </div>
@@ -178,11 +178,11 @@ export async function ReportView({
     return (
       <div className="space-y-6">
         <Kpis report={report} settings={settings} />
-        <div className="grid gap-4 xl:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
           <DailySalesChart data={report.daily} money={money} />
           <OrdersPerDayChart data={report.daily} />
         </div>
-        <div className="grid gap-4 xl:grid-cols-[1.2fr_1fr]">
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.2fr_1fr]">
           <BestSellers report={report} settings={settings} />
           <StatusBreakdownChart data={report.status_breakdown} />
         </div>
@@ -200,7 +200,7 @@ export async function ReportView({
       <div className="flex justify-end">
         <ExportCsvButton rows={report.daily} filename={`sales-${range.fromDate}-to-${range.toDate}.csv`} />
       </div>
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <DailySalesChart data={report.daily} money={money} />
         <RevenueChart data={report.daily} money={money} />
         <OrdersPerDayChart data={report.daily} />

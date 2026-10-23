@@ -52,7 +52,7 @@ export function ImageManager({ productId, images }: { productId: string; images:
   return (
     <div className="grid gap-4">
       {images.length === 0 ? <p className="text-sm text-muted">No images yet. The first image is used on product cards.</p> : null}
-      <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {images.map((img, i) => (
           <li key={img.id} className="overflow-hidden rounded-md border border-line-soft bg-card">
             <div className="relative aspect-square bg-surface">

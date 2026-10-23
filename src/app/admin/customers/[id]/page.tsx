@@ -74,7 +74,7 @@ async function CustomerDetail({ params }: { params: PageProps<"/admin/customers/
           hint={dates.length ? `First ${formatDate(new Date(dates[0]), settings.timezone)} · last ${formatDate(new Date(dates[dates.length - 1]), settings.timezone)}` : "No orders yet"}
         />
       </div>
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
         <SectionCard title="Order history" bodyClassName="p-0">
           {list.length === 0 ? (
             <p className="px-5 py-8 text-center text-sm text-muted">No orders yet.</p>

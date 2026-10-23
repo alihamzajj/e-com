@@ -53,7 +53,7 @@ export function RoleEditor({
         {isSelf ? <span className="text-xs text-muted">This is you</span> : null}
       </div>
       {r === "staff" ? (
-        <fieldset className="grid gap-1.5 sm:grid-cols-2">
+        <fieldset className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
           <legend className="mb-1 text-xs text-muted">Permissions</legend>
           {PERMISSIONS.map((p) => (
             <label key={p} className="flex items-center gap-2 text-sm">

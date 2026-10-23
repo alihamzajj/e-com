@@ -161,7 +161,7 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
   };
 
   return (
-    <form onSubmit={onSubmit} noValidate className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <form onSubmit={onSubmit} noValidate className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
       <div className="grid gap-5">
         <FormError message={formError} />
         <Card className="grid gap-4 p-5">

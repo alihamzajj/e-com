@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Check, ShoppingBag, Zap } from "lucide-react";
@@ -42,6 +42,24 @@ export function PurchasePanel({ product, stock, currency, locale }: Props) {
     initial ? Object.fromEntries(optionNames.map((n) => [n, initial.options[n]]).filter(([, v]) => v !== undefined)) : {},
   );
   const [quantity, setQuantity] = useState(1);
+  // Phones: pin a compact buy bar to the bottom while the main buttons are off-screen.
+  // Callback ref (with React 19 cleanup) so the observer follows the element that
+  // is actually mounted, even if the node is swapped while streaming/restoring.
+  const [showBar, setShowBar] = useState(false);
+  // Footer gets bottom room on phones while this page is showing (see globals.css).
+  useEffect(() => {
+    document.documentElement.classList.add("has-buy-bar");
+    return () => document.documentElement.classList.remove("has-buy-bar");
+  }, []);
+  const actionsRef = useCallback((el: HTMLDivElement | null) => {
+    if (!el || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(([entry]) => setShowBar(!entry.isIntersecting), { threshold: 0 });
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      setShowBar(false);
+    };
+  }, []);
 
   const selected = variants.find((v) => optionNames.every((n) => v.options[n] === selection[n])) ?? (optionNames.length === 0 ? variants[0] : undefined);
   const available = selected ? stock[selected.id] ?? 0 : 0;
@@ -111,7 +129,7 @@ export function PurchasePanel({ product, stock, currency, locale }: Props) {
                   aria-pressed={active}
                   onClick={() => choose(name, value)}
                   className={cn(
-                    "relative min-w-12 rounded-sm px-3.5 py-2 text-[13px] font-medium ring-1 transition",
+                    "relative min-h-10 min-w-12 rounded-sm px-3.5 py-2 text-[13px] font-medium ring-1 transition",
                     active ? "bg-ink text-white ring-ink" : "bg-card text-ink ring-line hover:ring-ink/50",
                     (!inStock || !exists) && !active && "text-subtle line-through decoration-subtle",
                   )}
@@ -140,15 +158,35 @@ export function PurchasePanel({ product, stock, currency, locale }: Props) {
         {selected?.sku ? <span className="ml-3 text-xs text-subtle">SKU {selected.sku}</span> : null}
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div ref={actionsRef} className="flex flex-wrap items-center gap-3">
         <QuantityStepper value={qty} max={Math.max(available, 1)} onChange={setQuantity} disabled={!selected || available <= 0 || pending} />
         <Button size="lg" variant="dark" className="flex-1 sm:flex-none" disabled={!selected || available <= 0} loading={pending} onClick={() => add(false)}>
           {!pending ? <ShoppingBag aria-hidden /> : null}
           Add to cart
         </Button>
-        <Button size="lg" className="flex-1 sm:flex-none" disabled={!selected || available <= 0 || pending} onClick={() => add(true)}>
+        <Button size="lg" className="basis-full sm:flex-none sm:basis-auto" disabled={!selected || available <= 0 || pending} onClick={() => add(true)}>
           <Zap aria-hidden /> Buy now
         </Button>
+      </div>
+
+      <div
+        aria-hidden={!showBar}
+        inert={!showBar}
+        className={cn(
+          "fixed inset-x-0 bottom-0 z-30 border-t border-line-soft bg-card/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_-12px_rgb(0_0_0/0.2)] backdrop-blur transition-transform duration-300 md:hidden",
+          showBar ? "translate-y-0" : "translate-y-full",
+        )}
+      >
+        <div className="flex items-center gap-3">
+          <div className="min-w-0 flex-1">
+            {selected && selected.title !== "Default" ? <p className="truncate text-xs text-muted">{selected.title}</p> : null}
+            <Price amount={unit} compareAt={compareAt > unit ? compareAt : null} currency={currency} locale={locale} size="sm" />
+          </div>
+          <Button variant="dark" disabled={!selected || available <= 0} loading={pending} onClick={() => add(false)}>
+            {!pending ? <ShoppingBag aria-hidden /> : null}
+            {available <= 0 ? "Out of stock" : "Add to cart"}
+          </Button>
+        </div>
       </div>
     </div>
   );

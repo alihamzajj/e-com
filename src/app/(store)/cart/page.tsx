@@ -58,7 +58,7 @@ async function CartContents() {
     quote.free_shipping_threshold != null ? Math.max(0, quote.free_shipping_threshold - (quote.subtotal - quote.discount_total)) : null;
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
       <Card className="px-5">
         {quote.issue_count > 0 ? (
           <p role="alert" className="mt-5 flex items-center gap-2 rounded-sm bg-danger-soft px-3 py-2 text-sm text-danger">
@@ -112,7 +112,7 @@ async function CartContents() {
 
 function CartSkeleton() {
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_380px]" aria-busy aria-label="Loading cart">
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_380px]" aria-busy aria-label="Loading cart">
       <div className="space-y-4 rounded-lg bg-card p-5">
         {[1, 2, 3].map((i) => (
           <div key={i} className="flex gap-4">

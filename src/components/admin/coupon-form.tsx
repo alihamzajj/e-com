@@ -40,7 +40,7 @@ export function CouponForm({ couponId, initial, currency, timezone }: { couponId
     <Card className="p-5">
       <form onSubmit={onSubmit} noValidate className="grid gap-4">
         <FormError message={error} />
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Code" htmlFor="code" required error={e.code?.message} hint="Customers type this at checkout. Case-insensitive.">
             <Input id="code" className="font-mono uppercase" aria-invalid={Boolean(e.code)} {...register("code")} />
           </Field>

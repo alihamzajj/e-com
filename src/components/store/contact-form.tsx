@@ -45,7 +45,7 @@ export function ContactForm({ defaults }: { defaults: Partial<Values> }) {
   return (
     <form
       noValidate
-      className="grid gap-4 sm:grid-cols-2"
+      className="grid grid-cols-1 gap-4 sm:grid-cols-2"
       onSubmit={handleSubmit((values) =>
         startTransition(async () => {
           const result = await submitSupportAction({

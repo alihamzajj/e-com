@@ -18,7 +18,7 @@ type Audit = { id: number; actor_id: string | null; action: string; entity: stri
 
 function PersonRow({ p, selfId }: { p: P; selfId: string }) {
   return (
-    <li className="grid gap-3 px-5 py-4 md:grid-cols-[1fr_minmax(0,420px)]">
+    <li className="grid grid-cols-1 gap-3 px-5 py-4 md:grid-cols-[minmax(0,1fr)_minmax(0,420px)]">
       <div className="min-w-0">
         <p className="font-medium">{p.full_name || "—"} {p.role !== "customer" ? <Badge tone="dark" className="ml-1 capitalize">{p.role}</Badge> : null}</p>
         <p className="truncate text-xs text-muted">{p.email}</p>

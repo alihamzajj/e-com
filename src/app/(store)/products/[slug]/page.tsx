@@ -50,13 +50,13 @@ async function ProductContent({ params }: { params: Params }) {
     <>
       <ProductJsonLd product={product} settings={settings} />
       <nav aria-label="Breadcrumb" className="mb-6 text-xs text-muted">
-        <Link href="/products" className="hover:text-ink">
+        <Link href="/products" className="tap hover:text-ink">
           Shop
         </Link>
         {product.category ? (
           <>
             {" / "}
-            <Link href={`/categories/${product.category.slug}`} className="hover:text-ink">
+            <Link href={`/categories/${product.category.slug}`} className="tap hover:text-ink">
               {product.category.name}
             </Link>
           </>
@@ -67,14 +67,14 @@ async function ProductContent({ params }: { params: Params }) {
         </span>
       </nav>
 
-      <div className="grid gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
         <ProductGallery images={product.images} name={product.name} />
         <div className="space-y-7 lg:pt-2">
           <div className="space-y-3">
             {product.category ? <p className="eyebrow">{product.category.name}</p> : null}
             <h1 className="display text-[clamp(2.5rem,5.5vw,4.5rem)]">{product.name}</h1>
             {product.rating_count > 0 ? (
-              <a href="#reviews" className="inline-flex items-center gap-2 text-sm text-muted hover:text-ink">
+              <a href="#reviews" className="tap inline-flex items-center gap-2 text-sm text-muted hover:text-ink">
                 <RatingStars value={product.rating_avg} /> {product.rating_avg.toFixed(1)} · {product.rating_count} review
                 {product.rating_count === 1 ? "" : "s"}
               </a>
@@ -90,7 +90,7 @@ async function ProductContent({ params }: { params: Params }) {
             </Suspense>
           )}
 
-          <ul className="grid gap-3 border-t border-line-soft pt-6 text-sm text-ink-soft sm:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-3 border-t border-line-soft pt-6 text-sm text-ink-soft sm:grid-cols-3">
             <li className="flex items-center gap-2">
               <Truck className="size-4 text-accent" aria-hidden />
               {settings.freeShippingThreshold
@@ -100,7 +100,7 @@ async function ProductContent({ params }: { params: Params }) {
             {settings.policies.returns ? (
               <li className="flex items-center gap-2">
                 <RotateCcw className="size-4 text-accent" aria-hidden />
-                <Link href="/policies/returns" className="hover:underline">
+                <Link href="/policies/returns" className="tap hover:underline">
                   Easy returns
                 </Link>
               </li>
@@ -224,7 +224,7 @@ function ProductJsonLd({ product, settings }: { product: ProductDetail; settings
 
 function ProductSkeleton() {
   return (
-    <div className="grid gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-14" aria-busy aria-label="Loading product">
+    <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-14" aria-busy aria-label="Loading product">
       <div className="skeleton aspect-square rounded-xl" />
       <div className="space-y-5">
         <div className="skeleton h-3 w-24 rounded" />

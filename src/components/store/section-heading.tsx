@@ -23,7 +23,7 @@ export function SectionHeading({
         </h2>
       </div>
       {href ? (
-        <Link href={href} className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-ink hover:text-accent-strong">
+        <Link href={href} className="tap inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-ink hover:text-accent-strong">
           {linkLabel ?? "View all"} <ArrowRight className="nudge size-4" aria-hidden />
         </Link>
       ) : null}

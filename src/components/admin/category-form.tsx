@@ -52,7 +52,7 @@ export function CategoryForm({
     <Card className="p-5">
       <form onSubmit={onSubmit} noValidate className="grid gap-4">
         <FormError message={error} />
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Name" htmlFor="cat-name" required error={e.name?.message}>
             <Input
               id="cat-name"
@@ -67,7 +67,7 @@ export function CategoryForm({
         <Field label="Description" htmlFor="cat-desc" error={e.description?.message}>
           <Textarea id="cat-desc" className="min-h-20" {...register("description")} />
         </Field>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Field label="Parent category" htmlFor="cat-parent">
             <NativeSelect id="cat-parent" {...register("parentId")}>
               <option value="">None (top level)</option>

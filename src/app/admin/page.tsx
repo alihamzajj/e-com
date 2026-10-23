@@ -66,7 +66,7 @@ async function Dashboard({ searchParams }: { searchParams: PageProps<"/admin">["
         {sections.length === 0 ? (
           <Card className="p-6 text-sm text-muted">No sections have been assigned to you yet. Ask an administrator for access.</Card>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {sections.map((s) => (
               <Link key={s.key} href={s.href}>
                 <Card className="p-5 font-medium hover:border-line">{s.label}</Card>

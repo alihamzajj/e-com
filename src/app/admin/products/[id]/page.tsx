@@ -121,7 +121,7 @@ async function EditProduct({ params }: { params: PageProps<"/admin/products/[id]
         <ImageManager productId={p.id} images={images} />
       </SectionCard>
 
-      <div className="grid gap-5 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
         <SectionCard title="Inventory" description={`Low-stock threshold: ${p.low_stock_threshold}`} bodyClassName="p-0">
           <Table className="min-w-0">
             <THead><tr><TH>Variant</TH><TH>SKU</TH><TH className="text-right">Stock</TH><TH /></tr></THead>

@@ -14,7 +14,7 @@ export default async function ContactPage(props: PageProps<"/contact">) {
     <div className="container-page pt-8 md:pt-12">
       <h1 className="display mb-3 text-[clamp(2.75rem,7vw,5.5rem)]">Contact us</h1>
       <p className="mb-10 max-w-lg text-sm text-muted">Questions about an order or a product? We usually reply within one business day.</p>
-      <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
         <Card className="p-5 md:p-8">
           <Suspense fallback={<div className="skeleton h-96 rounded" aria-busy />}>
             <PrefilledForm searchParams={props.searchParams} />
@@ -24,7 +24,7 @@ export default async function ContactPage(props: PageProps<"/contact">) {
           {settings.contactEmail ? (
             <Card className="flex items-center gap-3 p-4">
               <Mail className="size-4 text-accent" aria-hidden />
-              <a href={`mailto:${settings.contactEmail}`} className="hover:underline">
+              <a href={`mailto:${settings.contactEmail}`} className="inline-flex min-h-10 items-center hover:underline">
                 {settings.contactEmail}
               </a>
             </Card>
@@ -32,7 +32,7 @@ export default async function ContactPage(props: PageProps<"/contact">) {
           {settings.contactPhone ? (
             <Card className="flex items-center gap-3 p-4">
               <Phone className="size-4 text-accent" aria-hidden />
-              <a href={`tel:${settings.contactPhone.replace(/\s/g, "")}`} className="hover:underline">
+              <a href={`tel:${settings.contactPhone.replace(/\s/g, "")}`} className="inline-flex min-h-10 items-center hover:underline">
                 {settings.contactPhone}
               </a>
             </Card>

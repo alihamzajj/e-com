@@ -21,11 +21,11 @@ export async function Footer() {
         <div className="space-y-4">
           <p className="text-lg font-extrabold tracking-[0.18em]">{settings.storeName}</p>
           {settings.tagline ? <p className="max-w-xs text-sm text-white/60">{settings.tagline}</p> : null}
-          <ul className="space-y-2 text-sm text-white/70">
+          <ul className="text-sm text-white/70">
             {settings.contactEmail ? (
               <li className="flex items-center gap-2">
                 <Mail className="size-4 text-accent" aria-hidden />
-                <a href={`mailto:${settings.contactEmail}`} className="hover:text-white">
+                <a href={`mailto:${settings.contactEmail}`} className="inline-flex min-h-10 items-center hover:text-white">
                   {settings.contactEmail}
                 </a>
               </li>
@@ -33,7 +33,7 @@ export async function Footer() {
             {settings.contactPhone ? (
               <li className="flex items-center gap-2">
                 <Phone className="size-4 text-accent" aria-hidden />
-                <a href={`tel:${settings.contactPhone.replace(/\s/g, "")}`} className="hover:text-white">
+                <a href={`tel:${settings.contactPhone.replace(/\s/g, "")}`} className="inline-flex min-h-10 items-center hover:text-white">
                   {settings.contactPhone}
                 </a>
               </li>
@@ -84,15 +84,15 @@ function FooterColumn({ title, links }: { title: string; links: { href: string; 
   return (
     <div>
       <p className="mb-4 text-xs font-semibold tracking-[0.14em] text-white/40 uppercase">{title}</p>
-      <ul className="space-y-2.5 text-sm">
+      <ul className="text-sm">
         {links.map((l) => (
           <li key={l.href}>
             {l.external ? (
-              <a href={l.href} target="_blank" rel="noopener noreferrer" className="text-white/75 hover:text-white">
+              <a href={l.href} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center text-white/75 hover:text-white">
                 {l.label}
               </a>
             ) : (
-              <Link href={l.href} className="text-white/75 hover:text-white">
+              <Link href={l.href} className="inline-flex min-h-10 items-center text-white/75 hover:text-white">
                 {l.label}
               </Link>
             )}

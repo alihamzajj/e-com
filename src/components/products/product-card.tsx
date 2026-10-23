@@ -39,7 +39,7 @@ export function ProductCard({ product, currency, locale, priority, revealIndex }
         </div>
       </Link>
       <div className="flex flex-1 flex-col gap-2 p-4">
-        {product.category_name ? <p className="eyebrow !text-[10px]">{product.category_name}</p> : null}
+        {product.category_name ? <p className="eyebrow !text-[11px]">{product.category_name}</p> : null}
         <h3 className="text-sm leading-snug font-semibold text-ink">
           <Link href={href} prefetch className="after:absolute after:inset-0 focus-visible:outline-none">
             {product.name}
@@ -51,7 +51,8 @@ export function ProductCard({ product, currency, locale, priority, revealIndex }
             <span>({product.rating_count})</span>
           </div>
         ) : null}
-        <div className="mt-auto flex items-end justify-between gap-2 pt-1">
+        {/* Phones: price above a full-width button; wider screens: side by side. */}
+        <div className="mt-auto flex flex-col gap-2.5 pt-1 sm:flex-row sm:items-end sm:justify-between">
           <div className="grid gap-0.5">
             <Price amount={product.min_variant_price} compareAt={compareAt} currency={currency} locale={locale} from={hasRange} size="sm" />
             <span
@@ -62,11 +63,11 @@ export function ProductCard({ product, currency, locale, priority, revealIndex }
               {stock === "out_of_stock" ? "Out of stock" : stock === "low_stock" ? `Only ${product.total_stock} left` : "In stock"}
             </span>
           </div>
-          <div className="relative z-10">
+          <div className="relative z-10 [&>*]:w-full sm:[&>*]:w-auto">
             {stock === "out_of_stock" ? null : singleVariant ? (
-              <AddToCartButton variantId={product.default_variant_id!} size="sm" variant="dark" label="Add" aria-label={`Add ${product.name} to cart`} />
+              <AddToCartButton variantId={product.default_variant_id!} size="sm" variant="dark" className="max-sm:h-9" label="Add" aria-label={`Add ${product.name} to cart`} />
             ) : (
-              <Button asChild size="sm" variant="outline">
+              <Button asChild size="sm" variant="outline" className="max-sm:h-9">
                 <Link href={href} aria-label={`Choose options for ${product.name}`}>
                   Options
                 </Link>

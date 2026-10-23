@@ -39,7 +39,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-dvh">
         {children}
-        <Toaster position="bottom-right" richColors closeButton toastOptions={{ className: "font-sans" }} />
+        <Toaster position="bottom-right" richColors closeButton mobileOffset={{ bottom: 96 }} toastOptions={{ className: "font-sans" }} />
       </body>
     </html>
   );

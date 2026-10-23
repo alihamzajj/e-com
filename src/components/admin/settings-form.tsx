@@ -39,7 +39,7 @@ function ImageField({ label, value, onChange }: { label: string; value: string |
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {value ? <img src={value} alt="" className="size-full object-cover" /> : null}
         </div>
-        <Input aria-label={`${label} URL`} value={value ?? ""} onChange={(e) => onChange(e.target.value)} placeholder="https://… or upload" className="flex-1" />
+        <Input aria-label={`${label} URL`} value={value ?? ""} onChange={(e) => onChange(e.target.value)} placeholder="https://… or upload" className="min-w-0 flex-1" />
         <input
           ref={ref}
           type="file"
@@ -109,7 +109,7 @@ export function SettingsForm({ initial, gatewayConfigured }: { initial: In; gate
     <form onSubmit={onSubmit} noValidate className="grid gap-5">
       <FormError message={error} />
       <Section title="Brand" description="Shown in the header, emails and page titles.">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Store name" htmlFor="storeName" required error={e.storeName?.message}>
             <Input id="storeName" {...register("storeName")} />
           </Field>
@@ -121,7 +121,7 @@ export function SettingsForm({ initial, gatewayConfigured }: { initial: In; gate
       </Section>
 
       <Section title="Region" description="Currency and time zone used across the store and reports.">
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Field label="Currency" htmlFor="currency" error={e.currency?.message} hint="ISO code, e.g. PKR, USD">
             <Input id="currency" className="uppercase" maxLength={3} {...register("currency")} />
           </Field>
@@ -135,7 +135,7 @@ export function SettingsForm({ initial, gatewayConfigured }: { initial: In; gate
       </Section>
 
       <Section title="Contact">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Email" htmlFor="contactEmail" error={e.contactEmail?.message}>
             <Input id="contactEmail" type="email" {...register("contactEmail")} />
           </Field>
@@ -154,7 +154,7 @@ export function SettingsForm({ initial, gatewayConfigured }: { initial: In; gate
         ) : null}
         <div className="grid gap-3">
           {methods.fields.map((f, i) => (
-            <div key={f.id} className="grid gap-2 sm:grid-cols-[120px_1fr_120px_1fr_auto]">
+            <div key={f.id} className="grid grid-cols-1 gap-2 sm:grid-cols-[120px_1fr_120px_1fr_auto]">
               <Input aria-label="Method id" placeholder="id" {...register(`shippingMethods.${i}.id`)} aria-invalid={Boolean(e.shippingMethods?.[i]?.id)} />
               <Input aria-label="Label" placeholder="Label" {...register(`shippingMethods.${i}.label`)} aria-invalid={Boolean(e.shippingMethods?.[i]?.label)} />
               <Input aria-label="Price" placeholder="Price" inputMode="decimal" {...register(`shippingMethods.${i}.price`)} aria-invalid={Boolean(e.shippingMethods?.[i]?.price)} />
@@ -191,7 +191,7 @@ export function SettingsForm({ initial, gatewayConfigured }: { initial: In; gate
       </Section>
 
       <Section title="Home page hero">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Headline" htmlFor="hero-title"><Input id="hero-title" {...register("hero.title")} /></Field>
           <Field label="Button label" htmlFor="hero-cta"><Input id="hero-cta" {...register("hero.cta_label")} /></Field>
         </div>
@@ -201,12 +201,12 @@ export function SettingsForm({ initial, gatewayConfigured }: { initial: In; gate
       </Section>
 
       <Section title="Promotional banner">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Eyebrow" htmlFor="promo-eyebrow"><Input id="promo-eyebrow" {...register("promo.eyebrow")} /></Field>
           <Field label="Title" htmlFor="promo-title"><Input id="promo-title" {...register("promo.title")} /></Field>
         </div>
         <Field label="Body" htmlFor="promo-body"><Textarea id="promo-body" className="min-h-16" {...register("promo.body")} /></Field>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Button label" htmlFor="promo-cta"><Input id="promo-cta" {...register("promo.cta_label")} /></Field>
           <Field label="Button link" htmlFor="promo-href"><Input id="promo-href" {...register("promo.cta_href")} /></Field>
         </div>

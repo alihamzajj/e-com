@@ -96,13 +96,13 @@ export function CheckoutForm({ idempotencyKey, quote, addresses, contact, codEna
   const a11y = (path: string) => ({ "aria-invalid": err(path) ? true : undefined, "aria-describedby": err(path) ? `${path}-error` : undefined });
 
   return (
-    <form onSubmit={onSubmit} noValidate className="grid gap-8 lg:grid-cols-[1fr_400px]">
+    <form onSubmit={onSubmit} noValidate className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_400px]">
       <input type="hidden" {...register("idempotencyKey")} />
       <input type="hidden" {...register("couponCode")} />
       <div className="space-y-6">
         <Card className="space-y-5 p-5 md:p-6">
           <h2 className="font-semibold">1. Contact</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Full name" htmlFor="contact.name" error={err("contact.name")} required className="sm:col-span-2">
               <Input id="contact.name" autoComplete="name" {...register("contact.name")} {...a11y("contact.name")} />
             </Field>
@@ -118,7 +118,7 @@ export function CheckoutForm({ idempotencyKey, quote, addresses, contact, codEna
         <Card className="space-y-5 p-5 md:p-6">
           <h2 className="font-semibold">2. Delivery address</h2>
           {addresses.length > 0 ? (
-            <fieldset className="grid gap-2 sm:grid-cols-2">
+            <fieldset className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <legend className="sr-only">Saved addresses</legend>
               {addresses.map((a) => (
                 <label
@@ -231,7 +231,7 @@ export function CheckoutForm({ idempotencyKey, quote, addresses, contact, codEna
 
         <Card className="space-y-4 p-5 md:p-6">
           <h2 className="font-semibold">4. Payment</h2>
-          <fieldset className="grid gap-2 sm:grid-cols-2">
+          <fieldset className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <legend className="sr-only">Payment method</legend>
             {codEnabled ? (
               <label className={cn("flex cursor-pointer items-start gap-3 rounded-md p-3 text-sm ring-1", payment === "cod" ? "bg-surface ring-ink" : "ring-line hover:ring-ink/40")}>

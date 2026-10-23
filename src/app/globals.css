@@ -116,7 +116,14 @@
   .skeleton {
     background: linear-gradient(90deg, var(--line-soft) 0%, var(--surface) 50%, var(--line-soft) 100%);
     background-size: 800px 100%;
-    animation: var(--animate-shimmer);
+    /* Stay invisible for 450 ms: fast loads never flash grey boxes. */
+    animation:
+      var(--animate-shimmer),
+      skeleton-in 0.25s ease-out 0.45s both;
+  }
+  /* Loading-state wrappers (cards around skeletons) appear with the same delay. */
+  [aria-label^="Loading"] {
+    animation: skeleton-in 0.25s ease-out 0.45s both;
   }
   .container-page {
     width: 100%;
@@ -150,6 +157,10 @@
   --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+@keyframes skeleton-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 @keyframes rise-in {
   from { transform: translateY(105%); }
   to { transform: translateY(0); }

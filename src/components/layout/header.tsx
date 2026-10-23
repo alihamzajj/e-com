@@ -28,7 +28,7 @@ export async function Header() {
         <Logo name={settings.storeName} logoUrl={settings.logoUrl} />
         <nav aria-label="Main" className="mx-auto hidden items-center gap-7 md:flex">
           {nav.map((item) => (
-            <Link key={item.href} href={item.href} className="text-[13px] font-medium text-ink-soft transition-colors hover:text-ink">
+            <Link key={item.href} href={item.href} prefetch className="text-[13px] font-medium text-ink-soft transition-colors hover:text-ink">
               {item.label}
             </Link>
           ))}

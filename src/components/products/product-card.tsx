@@ -41,7 +41,7 @@ export function ProductCard({ product, currency, locale, priority, revealIndex }
       <div className="flex flex-1 flex-col gap-2 p-4">
         {product.category_name ? <p className="eyebrow !text-[10px]">{product.category_name}</p> : null}
         <h3 className="text-sm leading-snug font-semibold text-ink">
-          <Link href={href} className="after:absolute after:inset-0 focus-visible:outline-none">
+          <Link href={href} prefetch className="after:absolute after:inset-0 focus-visible:outline-none">
             {product.name}
           </Link>
         </h3>

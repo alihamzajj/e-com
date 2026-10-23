@@ -21,6 +21,7 @@ export function MobileNav({ links, storeName }: Props) {
         <nav aria-label="Mobile" className="flex flex-col p-3">
           {[...links, { href: "/account", label: "Account" }, { href: "/cart", label: "Cart" }].map((l) => (
             <Link
+              prefetch
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}

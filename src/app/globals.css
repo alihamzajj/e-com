@@ -174,10 +174,16 @@
    reduced motion — so content is never hidden without JS.
    --------------------------------------------------------------------------- */
 :root {
+  /* Space above the hero: sticky header (72px) + section padding + breathing room. */
+  --hero-offset: 7rem;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+:root:has(.setup-notice) {
+  /* The demo-mode banner adds ~38px above the header. */
+  --hero-offset: 9.4rem;
+}
 @keyframes skeleton-in {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -445,6 +451,13 @@
     .nk-orbit {
       width: 300px;
       height: 300px;
+    }
+  }
+  @media (min-width: 768px) {
+    /* Ring shrinks on short laptop screens so it stays around the products. */
+    .nk-orbit {
+      width: min(600px, 62svh);
+      height: min(600px, 62svh);
     }
   }
 }

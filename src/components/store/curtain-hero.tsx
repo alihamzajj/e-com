@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 // Hero products shown in the row under the copy: transparent cut-outs, sized by
 // height so they share a baseline. Swap these for your own product cut-outs.
 const HERO_PRODUCTS = [
-  { src: "/demo/fashion/cutout-dress-sand.webp", width: 608, height: 841, alt: "Linen summer dress in sand", className: "h-[clamp(150px,30vw,360px)]" },
-  { src: "/demo/fashion/cutout-crossbody-ember.webp", width: 494, height: 635, alt: "Leather crossbody bag in ember", className: "h-[clamp(105px,20vw,250px)]" },
-  { src: "/demo/fashion/cutout-tote-black.webp", width: 596, height: 614, alt: "Canvas market tote in black", className: "h-[clamp(100px,19vw,235px)]" },
+  { src: "/demo/fashion/cutout-dress-sand.webp", width: 608, height: 841, alt: "Linen summer dress in sand", className: "h-[clamp(150px,30vw,360px)] md:h-[94%]" },
+  { src: "/demo/fashion/cutout-crossbody-ember.webp", width: 494, height: 635, alt: "Leather crossbody bag in ember", className: "h-[clamp(105px,20vw,250px)] md:h-[66%]" },
+  { src: "/demo/fashion/cutout-tote-black.webp", width: 596, height: 614, alt: "Canvas market tote in black", className: "h-[clamp(100px,19vw,235px)] md:h-[62%]" },
 ];
 
 const SPARKLES = [
@@ -54,7 +54,9 @@ export function CurtainHero({ storeName, title, subtitle, ctaLabel, ctaHref }: P
   const wordmarkStyle = { fontSize: `min(11rem, 13vw, calc(42vw / ${longest * 0.62}))` } as React.CSSProperties;
   return (
     <section className="container-page pt-4 md:pt-6">
-      <div className="relative overflow-hidden rounded-2xl bg-surface px-5 pt-14 text-center md:pt-20">
+      {/* Laptop/desktop: the hero is exactly one screen tall (minus the header), and
+          everything inside scales with the window height so nothing falls below the fold. */}
+      <div className="relative overflow-hidden rounded-2xl bg-surface px-5 pt-14 text-center md:flex md:h-[calc(100svh-var(--hero-offset))] md:min-h-[460px] md:max-h-[1000px] md:flex-col md:pt-[clamp(1.75rem,6svh,5rem)]">
         {/* Curtain: covers the hero only, so the sticky navbar always stays above it. */}
         <div className="nk-curtain" aria-hidden>
           <div className="nk-curtain-panel left">
@@ -70,9 +72,9 @@ export function CurtainHero({ storeName, title, subtitle, ctaLabel, ctaHref }: P
         </div>
 
         <div className="nk-copy relative z-10">
-          <h1 className="display mx-auto max-w-5xl text-[clamp(2.6rem,9vw,7.75rem)] text-ink">{title}</h1>
-          {subtitle ? <p className="mx-auto mt-6 max-w-md text-[15px] leading-relaxed text-ink-soft">{subtitle}</p> : null}
-          <div className="mt-8">
+          <h1 className="display mx-auto max-w-5xl text-[clamp(2.6rem,9vw,7.75rem)] text-ink md:text-[clamp(2.6rem,min(8vw,10.5svh),7.75rem)]">{title}</h1>
+          {subtitle ? <p className="mx-auto mt-6 max-w-md text-[15px] leading-relaxed text-ink-soft md:mt-[clamp(0.75rem,2.6svh,1.5rem)]">{subtitle}</p> : null}
+          <div className="mt-8 md:mt-[clamp(1rem,3.2svh,2rem)]">
             <Button asChild size="lg" className="group">
               <Link href={ctaHref}>
                 {ctaLabel} <ChevronsRight className="nudge" aria-hidden />
@@ -82,7 +84,7 @@ export function CurtainHero({ storeName, title, subtitle, ctaLabel, ctaHref }: P
         </div>
 
         {/* Product row sits below the button (no overlap); the orbit ring spins behind it. */}
-        <div className="nk-stage mx-auto mt-10 flex max-w-5xl items-end justify-center gap-3 pb-8 sm:gap-8 md:mt-14 md:gap-14 md:pb-12">
+        <div className="nk-stage mx-auto mt-10 flex max-w-5xl items-end justify-center gap-3 pb-8 sm:gap-8 md:mt-[clamp(1.25rem,4svh,3.5rem)] md:min-h-0 md:w-full md:flex-1 md:gap-14 md:pb-[clamp(1rem,4svh,3rem)]">
           <div className="nk-orbit" aria-hidden>
             <span className="nk-orbit-dot -top-[7px] left-1/2 -translate-x-1/2 bg-accent" />
             <span className="nk-orbit-dot top-1/2 -right-[7px] -translate-y-1/2 bg-ink" />
@@ -91,8 +93,8 @@ export function CurtainHero({ storeName, title, subtitle, ctaLabel, ctaHref }: P
             <Sparkle key={s.delay} {...s} />
           ))}
           {HERO_PRODUCTS.map((p, i) => (
-            <div key={p.src} className="nk-pop" style={{ "--i": i } as React.CSSProperties}>
-              <div className="nk-float" style={{ "--i": i } as React.CSSProperties}>
+            <div key={p.src} className="nk-pop md:flex md:h-full md:items-end" style={{ "--i": i } as React.CSSProperties}>
+              <div className="nk-float md:flex md:h-full md:items-end" style={{ "--i": i } as React.CSSProperties}>
                 <Image
                   src={p.src}
                   alt={p.alt}

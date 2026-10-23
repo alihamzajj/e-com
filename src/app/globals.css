@@ -371,6 +371,10 @@
 @keyframes nk-orbit {
   to { transform: translate(-50%, -50%) rotate(360deg); }
 }
+@keyframes nk-orbit-md {
+  from { transform: translateX(-50%) rotate(0deg); }
+  to { transform: translateX(-50%) rotate(360deg); }
+}
 @keyframes nk-twinkle {
   from { opacity: 0.25; transform: scale(0.45) rotate(0deg); }
   to { opacity: 1; transform: scale(1) rotate(45deg); }
@@ -448,16 +452,29 @@
   }
 
   @media (max-width: 767px) {
+    /* Phones: same bottom anchoring, using the phone spacing (mt-10 above the row). */
     .nk-orbit {
-      width: 300px;
-      height: 300px;
+      top: auto;
+      bottom: 1.25rem;
+      height: min(300px, calc(100% - 1.25rem + 2.5rem + 1.5rem));
+      width: auto;
+      aspect-ratio: 1;
+      transform: translateX(-50%);
+      animation-name: nk-orbit-md;
     }
   }
   @media (min-width: 768px) {
-    /* Ring shrinks on short laptop screens so it stays around the products. */
+    /* Laptop/desktop: the ring sits on the bottom of the product area with a
+       margin above the card edge (never clipped) and grows upward to pass
+       behind the button, sized from the space actually available. */
     .nk-orbit {
-      width: min(600px, 62svh);
-      height: min(600px, 62svh);
+      top: auto;
+      bottom: max(6%, 1.25rem);
+      height: min(600px, calc(94% - 1.25rem + clamp(1.25rem, 4svh, 3.5rem) + 1.5rem));
+      width: auto;
+      aspect-ratio: 1;
+      transform: translateX(-50%);
+      animation-name: nk-orbit-md;
     }
   }
 }
@@ -477,5 +494,10 @@
   }
   .nk-orbit {
     transform: translate(-50%, -50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nk-orbit {
+    transform: translateX(-50%);
   }
 }

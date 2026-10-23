@@ -12,9 +12,9 @@ const HERO_PRODUCTS = [
 ];
 
 const SPARKLES = [
-  { className: "top-[6%] left-[12%] size-7 text-accent md:size-9", delay: "0s" },
-  { className: "top-[22%] right-[10%] size-5 text-ink md:size-7", delay: "0.8s" },
-  { className: "bottom-[30%] left-[4%] size-4 text-ink md:size-5", delay: "1.6s" },
+  { className: "top-[6%] left-[12%] size-7 text-accent md:left-[24%] md:size-8", delay: "0s" },
+  { className: "top-[22%] right-[10%] size-5 text-ink md:right-[25%] md:size-6", delay: "0.8s" },
+  { className: "bottom-[30%] left-[4%] size-4 text-ink md:bottom-[22%] md:left-[29%] md:size-5", delay: "1.6s" },
 ];
 
 /** Splits the store name into the two curtain halves, e.g. "Ghani Traders" → GHANI / TRADERS. */
@@ -102,7 +102,7 @@ export function CurtainHero({ storeName, title, subtitle, ctaLabel, ctaHref }: P
                   height={p.height}
                   priority={i === 0}
                   sizes="(min-width: 1024px) 280px, 26vw"
-                  className={`${p.className} w-auto select-none`}
+                  className={`${p.className} w-auto min-w-0 object-contain select-none`}
                   draggable={false}
                 />
               </div>

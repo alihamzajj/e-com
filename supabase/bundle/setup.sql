@@ -50,7 +50,7 @@ create trigger profiles_updated_at before update on public.profiles
 -- ---------------------------------------------------------------------------
 create table public.store_settings (
   id smallint primary key default 1 check (id = 1),
-  store_name text not null default 'NORTHKEY' check (char_length(store_name) between 1 and 60),
+  store_name text not null default 'Ghani Traders' check (char_length(store_name) between 1 and 60),
   tagline text not null default '',
   logo_url text,
   currency text not null default 'PKR' check (currency ~ '^[A-Z]{3}$'),
@@ -262,7 +262,7 @@ create sequence public.order_number_seq start 100001;
 
 create table public.orders (
   id uuid primary key default gen_random_uuid(),
-  order_number text not null unique default ('NK-' || nextval('public.order_number_seq')::text),
+  order_number text not null unique default ('GT-' || nextval('public.order_number_seq')::text),
   user_id uuid references auth.users (id) on delete set null,
   idempotency_key text not null check (char_length(idempotency_key) between 8 and 100),
   email text not null check (char_length(email) <= 254),

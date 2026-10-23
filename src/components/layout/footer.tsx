@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { getStoreSettings } from "@/features/settings/queries";
 import { getCategories } from "@/features/catalog/queries";
+import { Logo } from "./logo";
 
 const POLICY_LINKS = [
   { slug: "shipping", label: "Shipping" },
@@ -19,7 +20,7 @@ export async function Footer() {
     <footer className="mt-24 bg-ink text-white">
       <div className="container-page grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div className="space-y-4">
-          <p className="text-lg font-extrabold tracking-[0.18em]">{settings.storeName}</p>
+          <Logo name={settings.storeName} logoUrl={settings.logoUrl} tone="light" />
           {settings.tagline ? <p className="max-w-xs text-sm text-white/60">{settings.tagline}</p> : null}
           <ul className="text-sm text-white/70">
             {settings.contactEmail ? (

@@ -27,7 +27,7 @@ test.describe("customer", () => {
     await placeOrder.click();
     // The button locks while submitting, so a double click cannot create two orders.
     await page.waitForURL(/\/checkout\/success/);
-    const orderNumber = (await page.getByText(/NK-\d+/).first().textContent())?.match(/NK-\d+/)?.[0];
+    const orderNumber = (await page.getByText(/GT-\d+/).first().textContent())?.match(/GT-\d+/)?.[0];
     expect(orderNumber).toBeTruthy();
 
     await page.goto("/account/orders");

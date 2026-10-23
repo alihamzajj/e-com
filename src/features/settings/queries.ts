@@ -9,7 +9,7 @@ import { DEMO_SETTINGS } from "@/features/catalog/demo-catalog";
 export const SETTINGS_TAG = "store-settings";
 
 export const DEFAULT_SETTINGS: StoreSettings = {
-  storeName: "NORTHKEY",
+  storeName: "Ghani Traders",
   tagline: "",
   logoUrl: null,
   currency: "PKR",

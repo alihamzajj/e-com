@@ -74,7 +74,7 @@ export function ContactForm({ defaults }: { defaults: Partial<Values> }) {
         <Input id="subject" {...register("subject")} aria-invalid={e.subject ? true : undefined} />
       </Field>
       <Field label="Order number (optional)" htmlFor="orderNumber" error={e.orderNumber?.message}>
-        <Input id="orderNumber" placeholder="NK-100001" {...register("orderNumber")} />
+        <Input id="orderNumber" placeholder="GT-100001" {...register("orderNumber")} />
       </Field>
       <Field label="Message" htmlFor="message" error={e.message?.message} required className="sm:col-span-2">
         <Textarea id="message" rows={6} maxLength={5000} {...register("message")} aria-invalid={e.message ? true : undefined} />

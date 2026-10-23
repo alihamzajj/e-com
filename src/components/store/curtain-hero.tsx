@@ -17,13 +17,13 @@ const SPARKLES = [
   { className: "bottom-[30%] left-[4%] size-4 text-ink md:size-5", delay: "1.6s" },
 ];
 
-/** Splits the store name into the two curtain halves, e.g. NORTHKEY → NORTH / KEY. */
-function wordmarkHalves(name: string): [string, string] {
+/** Splits the store name into the two curtain halves, e.g. "Ghani Traders" → GHANI / TRADERS. */
+function wordmarkHalves(name: string): { left: string; right: string; spaced: boolean } {
   const clean = name.trim().toUpperCase();
   const space = clean.indexOf(" ");
-  if (space > 0) return [clean.slice(0, space), clean.slice(space + 1)];
+  if (space > 0) return { left: clean.slice(0, space), right: clean.slice(space + 1), spaced: true };
   const cut = Math.ceil(clean.length * 0.6);
-  return [clean.slice(0, cut), clean.slice(cut)];
+  return { left: clean.slice(0, cut), right: clean.slice(cut), spaced: false };
 }
 
 function Sparkle({ className, delay }: { className: string; delay: string }) {
@@ -48,17 +48,24 @@ type Props = {
  * curtain and shows everything static.
  */
 export function CurtainHero({ storeName, title, subtitle, ctaLabel, ctaHref }: Props) {
-  const [left, right] = wordmarkHalves(storeName);
+  const { left, right, spaced } = wordmarkHalves(storeName);
+  // Scale the wordmark so the longer half always fits inside its 50% panel.
+  const longest = Math.max(left.length, right.length, 4);
+  const wordmarkStyle = { fontSize: `min(11rem, 13vw, calc(42vw / ${longest * 0.62}))` } as React.CSSProperties;
   return (
     <section className="container-page pt-4 md:pt-6">
       <div className="relative overflow-hidden rounded-2xl bg-surface px-5 pt-14 text-center md:pt-20">
         {/* Curtain: covers the hero only, so the sticky navbar always stays above it. */}
         <div className="nk-curtain" aria-hidden>
           <div className="nk-curtain-panel left">
-            <span className="nk-wordmark display">{left}</span>
+            <span className={`nk-wordmark display${spaced ? " pr-[0.14em]" : ""}`} style={wordmarkStyle}>
+              {left}
+            </span>
           </div>
           <div className="nk-curtain-panel right">
-            <span className="nk-wordmark display">{right}</span>
+            <span className={`nk-wordmark display${spaced ? " pl-[0.14em]" : ""}`} style={wordmarkStyle}>
+              {right}
+            </span>
           </div>
         </div>
 

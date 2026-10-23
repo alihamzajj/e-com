@@ -1,4 +1,4 @@
-# NORTHKEY Store
+# Ghani Traders
 
 A full-stack e-commerce site with an admin dashboard. It's built with
 Next.js 16 (App Router, Cache Components), Supabase (Postgres, Auth, Storage),

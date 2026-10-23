@@ -6,7 +6,7 @@
 -- =============================================================================
 
 update public.store_settings set
-  store_name = 'NORTHKEY',
+  store_name = 'Ghani Traders',
   tagline = 'Keyboards engineered around the way you work.',
   contact_email = 'support@example.com',
   contact_phone = '+92 300 0000000',

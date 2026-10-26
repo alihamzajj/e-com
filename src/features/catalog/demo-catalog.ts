@@ -180,6 +180,12 @@ const REVIEW_SNIPPETS: [string, string, number, string, string][] = [
   ["Zainab", "linen-summer-dress", 5, "Lovely for summer", "Light, breathable and the pockets are a bonus."],
 ];
 
+// Sample buyer photos so review photos can be previewed in demo mode.
+const REVIEW_PHOTOS: Record<string, string[]> = {
+  "leather-crossbody-bag": [`${IMG}/crossbody-tan.webp`, `${IMG}/crossbody-black.webp`],
+  "everyday-leather-sneakers": [`${IMG}/sneaker-white.webp`],
+};
+
 export function demoRecentReviews(): (Review & { product: { name: string; slug: string } | null })[] {
   return REVIEW_SNIPPETS.map(([author, slug, rating, title, body], i) => ({
     id: `demo-review-${i}`,
@@ -196,7 +202,15 @@ export function demoProductReviews(id: string): Review[] {
   const p = PRODUCTS.find((x) => productId(x.n) === id);
   return demoRecentReviews()
     .filter((r) => r.product?.slug === p?.slug)
-    .map((r) => ({ id: r.id, author_name: r.author_name, rating: r.rating, title: r.title, body: r.body, created_at: r.created_at }));
+    .map((r) => ({
+      id: r.id,
+      author_name: r.author_name,
+      rating: r.rating,
+      title: r.title,
+      body: r.body,
+      created_at: r.created_at,
+      photos: REVIEW_PHOTOS[r.product?.slug ?? ""] ?? [],
+    }));
 }
 
 export function demoSitemap() {

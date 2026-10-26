@@ -39,6 +39,8 @@ const MESSAGES: Record<string, string> = {
   VARIANT_NOT_FOUND: "Variant not found.",
   REVIEW_NOT_ELIGIBLE: "You can review products from delivered orders.",
   INVALID_RATING: "Choose a rating between 1 and 5.",
+  TOO_MANY_PHOTOS: "You can add up to 4 photos.",
+  INVALID_PHOTO: "One of the photos could not be saved. Please try again.",
   PRODUCT_NOT_FOUND: "Product not found.",
   INVALID_PARENT_QUESTION: "You can only follow up on answered questions.",
   INVALID_QUESTION: "Questions must be between 5 and 1000 characters.",

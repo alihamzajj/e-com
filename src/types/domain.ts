@@ -240,6 +240,8 @@ export type Review = {
   title: string | null;
   body: string | null;
   created_at: string;
+  /** Public URLs of the buyer's photos. */
+  photos?: string[];
 };
 
 export type ProductQuestion = {

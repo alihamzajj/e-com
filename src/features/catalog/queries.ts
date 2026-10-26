@@ -13,6 +13,7 @@ import {
   demoStock,
 } from "./demo-catalog";
 import { logServerError } from "@/lib/errors";
+import { CATALOG_BUCKET } from "@/lib/storage/upload";
 import { toNumber } from "@/lib/utils/format";
 import type { CatalogProduct, Category, OptionFacet, ProductDetail, ProductVariant, Review } from "@/types/domain";
 
@@ -314,18 +315,26 @@ export async function getProductReviews(productId: string, limit = 20): Promise<
   cacheTag("reviews", `reviews:${productId}`);
   cacheLife("minutes");
   if (!isSupabaseConfigured()) return demoProductReviews(productId);
-  const { data, error } = await createPublicClient()
-    .from("reviews")
-    .select("id, author_name, rating, title, body, created_at")
-    .eq("product_id", productId)
-    .eq("status", "published")
-    .order("created_at", { ascending: false })
-    .limit(limit);
+  const load = (columns: string) =>
+    createPublicClient()
+      .from("reviews")
+      .select(columns)
+      .eq("product_id", productId)
+      .eq("status", "published")
+      .order("created_at", { ascending: false })
+      .limit(limit);
+  let { data, error } = await load("id, author_name, rating, title, body, created_at, photos");
+  // Before the review-photos migration is applied there is no photos column.
+  if (error?.code === "42703") ({ data, error } = await load("id, author_name, rating, title, body, created_at"));
   if (error) {
     logServerError("catalog.reviews", error);
     return [];
   }
-  return (data ?? []) as Review[];
+  const storage = createPublicClient().storage.from(CATALOG_BUCKET);
+  return ((data ?? []) as unknown as (Review & { photos?: string[] | null })[]).map((r) => ({
+    ...r,
+    photos: (r.photos ?? []).map((path) => storage.getPublicUrl(path).data.publicUrl),
+  }));
 }
 
 export type HomeReview = Review & { product: { name: string; slug: string } | null };

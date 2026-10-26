@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { ReviewPhotos } from "@/components/products/review-photos";
+import { CATALOG_BUCKET } from "@/lib/storage/upload";
 import { Suspense } from "react";
 import { MessageSquareText } from "lucide-react";
 import { requirePermission } from "@/lib/auth/session";
@@ -93,11 +95,13 @@ async function ReviewsTab({ page, settings }: { page: number; settings: StoreSet
   const supabase = await createClient();
   const { data, count } = await supabase
     .from("reviews")
-    .select("id, rating, title, body, author_name, status, created_at, products(name, slug)", { count: "exact" })
+    // "*" includes the photos column once the review-photos migration is applied.
+    .select("*, products(name, slug)", { count: "exact" })
     .order("created_at", { ascending: false })
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
-  type R = { id: string; rating: number; title: string | null; body: string | null; author_name: string; status: string; created_at: string; products: { name: string; slug: string } | null };
+  type R = { id: string; rating: number; title: string | null; body: string | null; author_name: string; status: string; created_at: string; photos?: string[]; products: { name: string; slug: string } | null };
   const rows = (data ?? []) as unknown as R[];
+  const photoUrl = (path: string) => supabase.storage.from(CATALOG_BUCKET).getPublicUrl(path).data.publicUrl;
   if (rows.length === 0) return <Card><EmptyState title="No reviews yet" description="Reviews from delivered orders appear here." /></Card>;
   return (
     <>
@@ -112,6 +116,11 @@ async function ReviewsTab({ page, settings }: { page: number; settings: StoreSet
                 </div>
                 {r.title ? <p className="mt-2 font-medium">{r.title}</p> : null}
                 {r.body ? <p className="mt-1 whitespace-pre-wrap text-sm text-ink-soft">{r.body}</p> : null}
+                {r.photos?.length ? (
+                  <div className="mt-3">
+                    <ReviewPhotos photos={r.photos.map(photoUrl)} author={r.author_name} />
+                  </div>
+                ) : null}
                 <p className="mt-2 text-xs text-muted">
                   {r.author_name} on {r.products?.name ?? "—"} · {formatDateTime(r.created_at, settings.timezone, settings.locale)}
                 </p>

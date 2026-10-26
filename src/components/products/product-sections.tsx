@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { RatingStars } from "@/components/ui/rating";
 import { formatDate } from "@/lib/utils/format";
 import { ReviewForm } from "./review-form";
+import { ReviewPhotos } from "./review-photos";
 import { AskQuestionForm, ReportButton } from "./question-forms";
 
 type Base = { productId: string; productSlug: string; timezone: string };
@@ -68,6 +69,7 @@ export async function ReviewsSection({ productId, productSlug, timezone, ratingA
                 </div>
                 {r.title ? <p className="font-semibold">{r.title}</p> : null}
                 {r.body ? <p className="text-sm leading-relaxed whitespace-pre-line text-ink-soft">{r.body}</p> : null}
+                <ReviewPhotos photos={r.photos ?? []} author={r.author_name} />
                 <p className="text-xs text-muted">
                   {r.author_name} · Verified buyer · {formatDate(r.created_at, timezone)}
                 </p>

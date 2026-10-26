@@ -42,7 +42,7 @@ async function EditCategory({ params }: { params: PageProps<"/admin/categories/[
             title="Delete this category?"
             description="Only empty categories can be deleted. Move its products first, or hide the category instead."
             confirmLabel="Delete"
-            action={() => deleteCategoryAction(c.id)}
+            action={deleteCategoryAction.bind(null, c.id)}
             redirectTo="/admin/categories"
           >
             Delete

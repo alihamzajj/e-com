@@ -46,7 +46,7 @@ async function EditCoupon({ params }: { params: PageProps<"/admin/coupons/[id]">
         title={c.code}
         description={`Used ${c.used_count}${c.usage_limit ? ` of ${c.usage_limit}` : ""} times`}
         actions={
-          <ConfirmButton title="Delete coupon?" description="Only coupons that were never used can be deleted." confirmLabel="Delete" action={() => deleteCouponAction(c.id)} redirectTo="/admin/coupons">
+          <ConfirmButton title="Delete coupon?" description="Only coupons that were never used can be deleted." confirmLabel="Delete" action={deleteCouponAction.bind(null, c.id)} redirectTo="/admin/coupons">
             Delete
           </ConfirmButton>
         }

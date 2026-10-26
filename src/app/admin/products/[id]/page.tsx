@@ -106,7 +106,7 @@ async function EditProduct({ params }: { params: PageProps<"/admin/products/[id]
               title="Delete this product?"
               description="Products that appear on orders are archived instead, so order history stays intact. Products without orders are permanently deleted with their images."
               confirmLabel="Delete"
-              action={() => deleteProductAction(p.id)}
+              action={deleteProductAction.bind(null, p.id)}
               redirectTo="/admin/products"
             >
               Delete

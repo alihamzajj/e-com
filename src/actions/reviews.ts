@@ -53,8 +53,9 @@ export async function submitReviewAction(formData: FormData): Promise<ActionResu
     p_rating: parsed.data.rating,
     p_title: parsed.data.title ?? "",
     p_body: parsed.data.body ?? "",
-    // No new photos keeps the ones already on the review.
-    p_photos: files.length ? uploaded : null,
+    // Sent only with new photos: leaving it out keeps a review's existing photos,
+    // and text-only reviews still work before the review-photos migration is applied.
+    ...(files.length ? { p_photos: uploaded } : {}),
   });
   if (error) {
     for (const path of uploaded) await removeImage(supabase, path);

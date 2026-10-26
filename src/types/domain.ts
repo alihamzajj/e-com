@@ -61,6 +61,9 @@ export type Category = {
   sort_order: number;
 };
 
+/** One filterable product option (e.g. Size, Color, Fits) and the values on offer. */
+export type OptionFacet = { name: string; values: { value: string; count: number }[] };
+
 export type ProductStatus = "draft" | "active" | "archived";
 
 export type CatalogProduct = {

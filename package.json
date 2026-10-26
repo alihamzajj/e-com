@@ -13,6 +13,7 @@
     "test:db": "vitest run tests/db",
     "test:e2e": "playwright test",
     "db:bundle": "node scripts/bundle-migrations.mjs",
+    "db:catalog": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-catalog-sql.mts",
     "db:types": "supabase gen types typescript --linked --schema public > src/types/database.ts",
     "images:demo": "node scripts/generate-demo-images.mjs",
     "test:live": "vitest run tests/live"

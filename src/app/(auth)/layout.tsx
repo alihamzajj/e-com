@@ -6,7 +6,7 @@ export default async function AuthLayout({ children }: LayoutProps<"/">) {
   const settings = await getStoreSettings();
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="container-page flex h-16 items-center justify-between">
+      <header className="container-page flex h-[68px] items-center justify-between md:h-20">
         <Logo name={settings.storeName} logoUrl={settings.logoUrl} />
         <Link href="/products" className="tap text-sm text-muted hover:text-ink">
           Back to shop

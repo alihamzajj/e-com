@@ -7,7 +7,7 @@ import { ProductImage } from "@/components/products/product-image";
 import { Button } from "@/components/ui/button";
 import { RatingStars } from "@/components/ui/rating";
 import { NewsletterForm } from "@/components/store/newsletter-form";
-import { CurtainHero } from "@/components/store/curtain-hero";
+import { OrbitHero } from "@/components/store/orbit-hero";
 import { SectionHeading } from "@/components/store/section-heading";
 import { SplitWords } from "@/components/motion/split-words";
 import { formatMoney } from "@/lib/utils/format";
@@ -29,8 +29,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <CurtainHero
-        storeName={settings.storeName}
+      <OrbitHero
         title={hero.title || settings.storeName}
         subtitle={hero.subtitle || settings.tagline || undefined}
         ctaLabel={hero.cta_label || "Shop collection"}

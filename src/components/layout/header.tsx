@@ -2,12 +2,14 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { Phone, ShoppingBag, User } from "lucide-react";
 import { getStoreSettings } from "@/features/settings/queries";
-import { getCategories } from "@/features/catalog/queries";
+import { getCategories, getCategoryPreview } from "@/features/catalog/queries";
+import { formatMoney } from "@/lib/utils/format";
 import { getCartCount } from "@/features/cart/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { SearchDialog } from "./search-dialog";
 import { MobileNav } from "./mobile-nav";
 import { NavLinks } from "./nav-links";
+import type { MegaCategory } from "./mega-panel";
 import { Logo } from "./logo";
 
 const iconButton =
@@ -15,19 +17,33 @@ const iconButton =
 
 export async function Header() {
   const [settings, categories] = await Promise.all([getStoreSettings(), getCategories()]);
-  const topCategories = categories.filter((c) => !c.parent_id).slice(0, 3);
-  const nav = [
-    { href: "/products", label: "Shop" },
-    ...topCategories.map((c) => ({ href: `/categories/${c.slug}`, label: c.name })),
-    { href: "/contact", label: "Support" },
-  ];
+  const tops = categories.filter((c) => !c.parent_id);
+  const previews = await Promise.all(tops.map((c) => getCategoryPreview(c.slug, 3)));
+  const mega: MegaCategory[] = tops.map((c, i) => ({
+    slug: c.slug,
+    name: c.name,
+    href: `/categories/${c.slug}`,
+    subs: categories.filter((s) => s.parent_id === c.id).map((s) => ({ name: s.name, href: `/categories/${s.slug}` })),
+    products: previews[i].map((p) => ({
+      name: p.name,
+      href: `/products/${p.slug}`,
+      image: p.image_url,
+      price: formatMoney(p.min_variant_price, settings.currency, settings.locale),
+    })),
+  }));
+  // Shortcuts to the newest lines, shown only once those categories exist.
+  const shortcuts = ["leather-jackets", "watches"]
+    .map((slug) => categories.find((c) => c.slug === slug))
+    .filter((c) => c !== undefined)
+    .map((c) => ({ href: `/categories/${c.slug}`, label: c.name }));
+  const nav = [...shortcuts, { href: "/contact", label: "Support" }];
 
   return (
     <header className="sticky top-0 z-40 border-b border-transparent bg-canvas/85 backdrop-blur-md supports-[backdrop-filter]:bg-canvas/70">
-      <div className="container-page flex h-16 items-center gap-3 md:h-[72px]">
-        <MobileNav links={nav} storeName={settings.storeName} />
+      <div className="container-page flex h-[68px] items-center gap-3 md:h-20">
+        <MobileNav categories={mega} links={[{ href: "/products", label: "Shop all" }, ...nav]} storeName={settings.storeName} />
         <Logo name={settings.storeName} logoUrl={settings.logoUrl} />
-        <NavLinks links={nav} />
+        <NavLinks links={nav} mega={mega} />
         <div className="ml-auto flex items-center gap-0.5 md:ml-0">
           <SearchDialog />
           <Suspense fallback={<span className={iconButton} aria-hidden><User /></span>}>

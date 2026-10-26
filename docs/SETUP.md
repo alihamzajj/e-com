@@ -49,6 +49,18 @@ customers or reviews. Run it in the SQL Editor, or with the CLI:
 `npx supabase db reset` on a local stack. Don't run it on a production store that
 already has a catalog.
 
+**Updating a project that is already set up.** `setup.sql` is for a new, empty
+project only. When a later migration is added (for example
+`20261026000007_catalog_option_filters.sql`, which adds the Size / Colour / phone
+model filters), paste just that file into **SQL Editor → New query** and run it.
+
+**Expanded catalog (leather jackets, belts, wallets, shoes, watches, mobile
+accessories).** Run `supabase/seed-catalog-expansion.sql` in the SQL Editor after
+`supabase/seed-store.sql` and the migration above. It adds the category tree and the
+new products, moves the starter products into their subcategories, and leaves
+anything you changed in the admin alone. It is safe to run twice. After editing
+`src/features/catalog/demo-data.ts`, regenerate it with `npm run db:catalog`.
+
 ## 3. Configure authentication — You do this
 
 **Authentication → URL Configuration**

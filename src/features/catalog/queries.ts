@@ -4,6 +4,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 import { isSupabaseConfigured } from "@/lib/config/public";
 import {
   demoCategories,
+  demoOptionFacets,
   demoProductBySlug,
   demoProductReviews,
   demoRecentReviews,
@@ -13,7 +14,7 @@ import {
 } from "./demo-catalog";
 import { logServerError } from "@/lib/errors";
 import { toNumber } from "@/lib/utils/format";
-import type { CatalogProduct, Category, ProductDetail, ProductVariant, Review } from "@/types/domain";
+import type { CatalogProduct, Category, OptionFacet, ProductDetail, ProductVariant, Review } from "@/types/domain";
 
 export const PAGE_SIZE = 12;
 export const SORTS = ["newest", "price_asc", "price_desc", "popular", "rating", "relevance"] as const;
@@ -26,6 +27,8 @@ export type CatalogParams = {
   max: number | null;
   sort: CatalogSort;
   inStock: boolean;
+  /** Variant option filters, e.g. { Size: ["M"], Fits: ["iPhone 15"] }. */
+  options: Record<string, string[]>;
   page: number;
 };
 
@@ -44,6 +47,20 @@ function positiveNumber(value: SearchParamValue): number | null {
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
+/** Reads repeated `opt=Name:Value` params into { Name: [Value, …] }. */
+function parseOptions(value: SearchParamValue): Record<string, string[]> {
+  const raw = Array.isArray(value) ? value : value ? [value] : [];
+  const out: Record<string, string[]> = {};
+  for (const entry of raw.slice(0, 20)) {
+    const at = entry.indexOf(":");
+    const name = entry.slice(0, at).trim().slice(0, 40);
+    const val = entry.slice(at + 1).trim().slice(0, 60);
+    if (at <= 0 || !name || !val) continue;
+    if (!(out[name] ?? []).includes(val)) out[name] = [...(out[name] ?? []), val];
+  }
+  return out;
+}
+
 /** Normalises untrusted URL search params into catalog filters. */
 export function parseCatalogParams(sp: Record<string, SearchParamValue>, fixedCategory?: string): CatalogParams {
   const q = first(sp.q)?.trim().slice(0, 100) || null;
@@ -58,6 +75,7 @@ export function parseCatalogParams(sp: Record<string, SearchParamValue>, fixedCa
     max: positiveNumber(sp.max),
     sort,
     inStock: first(sp.stock) === "1",
+    options: parseOptions(sp.opt),
     page: Number.isInteger(pageRaw) && pageRaw > 0 && pageRaw < 10_000 ? pageRaw : 1,
   };
 }
@@ -71,6 +89,7 @@ export function catalogQueryString(params: Partial<CatalogParams>, overrides: Pa
   if (p.max != null) qs.set("max", String(p.max));
   if (p.sort && p.sort !== "newest" && !(p.sort === "relevance" && p.q)) qs.set("sort", p.sort);
   if (p.inStock) qs.set("stock", "1");
+  for (const [name, values] of Object.entries(p.options ?? {})) for (const v of values) qs.append("opt", `${name}:${v}`);
   if (p.page && p.page > 1) qs.set("page", String(p.page));
   const s = qs.toString();
   return s ? `?${s}` : "";
@@ -103,10 +122,12 @@ async function runCatalogSearch(args: {
   sort?: CatalogSort;
   inStock?: boolean;
   featured?: boolean;
+  options?: Record<string, string[]>;
   limit: number;
   offset: number;
 }): Promise<CatalogProduct[]> {
   if (!isSupabaseConfigured()) return demoSearch(args);
+  const options = args.options && Object.keys(args.options).length > 0 ? args.options : null;
   const { data, error } = await createPublicClient().rpc("catalog_search", {
     p_query: args.q ?? null,
     p_category_slug: args.category ?? null,
@@ -117,6 +138,8 @@ async function runCatalogSearch(args: {
     p_featured: args.featured ?? false,
     p_limit: args.limit,
     p_offset: args.offset,
+    // Only sent when filtering, so a database without the option-filter migration keeps working.
+    ...(options ? { p_options: options } : {}),
   });
   if (error) {
     logServerError("catalog.search", error);
@@ -139,6 +162,27 @@ export async function searchCatalog(params: CatalogParams): Promise<CatalogResul
   return { products, total, page: params.page, pageCount: Math.max(1, Math.ceil(total / PAGE_SIZE)) };
 }
 
+/** Filterable option values (Size, Color, Fits…) offered in a category, or the whole store. */
+export async function getOptionFacets(categorySlug: string | null): Promise<OptionFacet[]> {
+  "use cache";
+  cacheTag("products");
+  cacheLife("minutes");
+  if (!isSupabaseConfigured()) return demoOptionFacets(categorySlug);
+  const { data, error } = await createPublicClient().rpc("catalog_option_facets", { p_category_slug: categorySlug });
+  if (error) {
+    // Before the option-filter migration is applied the panel simply has no option filters.
+    logServerError("catalog.facets", error);
+    return [];
+  }
+  const facets = new Map<string, OptionFacet>();
+  for (const row of (data ?? []) as { name: string; value: string; product_count: number }[]) {
+    const facet = facets.get(row.name) ?? { name: row.name, values: [] };
+    facet.values.push({ value: row.value, count: toNumber(row.product_count) });
+    facets.set(row.name, facet);
+  }
+  return [...facets.values()];
+}
+
 export async function getProductRail(kind: "featured" | "newest" | "popular", limit = 8): Promise<CatalogProduct[]> {
   "use cache";
   cacheTag("products");
@@ -149,6 +193,14 @@ export async function getProductRail(kind: "featured" | "newest" | "popular", li
     limit,
     offset: 0,
   });
+}
+
+/** Best sellers in a category and its subcategories, for the menu's product previews. */
+export async function getCategoryPreview(categorySlug: string, limit = 3): Promise<CatalogProduct[]> {
+  "use cache";
+  cacheTag("products");
+  cacheLife("minutes");
+  return runCatalogSearch({ category: categorySlug, sort: "popular", limit, offset: 0 });
 }
 
 export async function getRelatedProducts(categorySlug: string | null, excludeId: string, limit = 4): Promise<CatalogProduct[]> {

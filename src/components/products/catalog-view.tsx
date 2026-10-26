@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SearchX } from "lucide-react";
 import { getStoreSettings } from "@/features/settings/queries";
-import { catalogQueryString, getCategories, searchCatalog, type CatalogParams } from "@/features/catalog/queries";
+import { catalogQueryString, getCategories, getOptionFacets, searchCatalog, type CatalogParams } from "@/features/catalog/queries";
 import { ProductGrid } from "./product-card";
 import { ActiveFilterChips, CatalogFilters, MobileFilters, SortSelect, type FilterState } from "./catalog-filters";
 import { Pagination } from "@/components/ui/pagination";
@@ -13,7 +13,13 @@ type Props = { params: CatalogParams; basePath: string; lockCategory?: boolean }
 
 /** Filters + results + pagination. Server-rendered; filter controls update the URL. */
 export async function CatalogView({ params, basePath, lockCategory }: Props) {
-  const [settings, categories, result] = await Promise.all([getStoreSettings(), getCategories(), searchCatalog(params)]);
+  const [settings, categories, result, facets] = await Promise.all([
+    getStoreSettings(),
+    getCategories(),
+    searchCatalog(params),
+    getOptionFacets(params.category),
+  ]);
+  const slugById = new Map(categories.map((c) => [c.id, c.slug]));
   const state: FilterState = {
     q: params.q,
     category: params.category,
@@ -21,11 +27,13 @@ export async function CatalogView({ params, basePath, lockCategory }: Props) {
     max: params.max,
     sort: params.sort,
     inStock: params.inStock,
+    options: params.options,
   };
   const filterProps = {
     basePath,
     state,
-    categories: categories.map((c) => ({ slug: c.slug, name: c.name })),
+    categories: categories.map((c) => ({ slug: c.slug, name: c.name, parent: c.parent_id ? (slugById.get(c.parent_id) ?? null) : null })),
+    facets,
     lockCategory,
     currency: settings.currency,
   };

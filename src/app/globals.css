@@ -174,15 +174,15 @@
    reduced motion — so content is never hidden without JS.
    --------------------------------------------------------------------------- */
 :root {
-  /* Space above the hero: sticky header (72px) + section padding + breathing room. */
-  --hero-offset: 7rem;
+  /* Space above the hero: sticky header (80px) + section padding + breathing room. */
+  --hero-offset: 7.5rem;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 :root:has(.setup-notice) {
   /* The demo-mode banner adds ~38px above the header. */
-  --hero-offset: 9.4rem;
+  --hero-offset: 9.9rem;
 }
 @keyframes skeleton-in {
   from { opacity: 0; }
@@ -323,181 +323,228 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Hero curtain reveal (10 s loop). Timeline:
-     0–8%    curtain closed, wordmark visible
-     8–18%   panels slide apart, wordmark fades
-     16–24%  copy fades/scales in; 20–28% products pop in (staggered)
-     78–86%  products shrink out, copy fades out
-     88–98%  curtain closes, wordmark returns
+   Orbit Ring hero. One cycle is 3 s per product (12 s for four); product k is
+   offset by k × −3 s. Each .orb wrapper travels the 460 px ring clockwise (the
+   counter-rotation keeps it upright) while its link grows, holds big at the
+   bottom, then shrinks and fades round the far side. The centre label for
+   product k shares the same cycle, so it shows only while that product is big.
+   Hovering, focusing, or tapping the stage pauses every animation together.
    --------------------------------------------------------------------------- */
-@keyframes nk-curtain-left {
-  0%, 8% { transform: translateX(0); }
-  18%, 88% { transform: translateX(-101%); }
-  98%, 100% { transform: translateX(0); }
+@keyframes orbit-travel {
+  from { transform: rotate(0deg) translateY(230px) rotate(0deg); }
+  to { transform: rotate(360deg) translateY(230px) rotate(-360deg); }
 }
-@keyframes nk-curtain-right {
-  0%, 8% { transform: translateX(0); }
-  18%, 88% { transform: translateX(101%); }
-  98%, 100% { transform: translateX(0); }
+@keyframes orbit-size {
+  0% { opacity: 0; transform: scale(0.2); visibility: hidden; }
+  5% { opacity: 1; transform: scale(1.3); visibility: visible; }
+  24% { opacity: 1; transform: scale(1.3); }
+  70% { opacity: 1; transform: scale(0.5); visibility: visible; }
+  90% { opacity: 0; transform: scale(0.3); visibility: hidden; }
+  100% { opacity: 0; transform: scale(0.2); visibility: hidden; }
 }
-@keyframes nk-wordmark {
-  0%, 8% { opacity: 1; }
-  13%, 93% { opacity: 0; }
-  99%, 100% { opacity: 1; }
+@keyframes orbit-z {
+  0%, 28% { z-index: 9; }
+  28.01%, 100% { z-index: 2; }
 }
-@keyframes nk-copy {
-  0%, 16% { opacity: 0; transform: scale(0.92); }
-  24%, 80% { opacity: 1; transform: scale(1); }
-  86%, 100% { opacity: 0; transform: scale(0.92); }
+@keyframes orbit-label {
+  0% { opacity: 0; transform: translateY(14px); visibility: hidden; }
+  4% { opacity: 1; transform: translateY(0); visibility: visible; }
+  23% { opacity: 1; transform: translateY(0); visibility: visible; }
+  27%, 100% { opacity: 0; transform: translateY(-14px); visibility: hidden; }
 }
-@keyframes nk-pop {
-  0%, 20% {
-    opacity: 0;
-    transform: scale(0) rotate(-14deg);
-    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  28% { opacity: 1; transform: scale(1) rotate(0deg); }
-  78% {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
-    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
-  }
-  84%, 100% { opacity: 0; transform: scale(0) rotate(-14deg); }
+@keyframes orbit-spin {
+  to { transform: rotate(360deg); }
 }
-@keyframes nk-float {
-  from { transform: translateY(0); }
-  to { transform: translateY(-12px); }
+@keyframes orbit-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
 }
-@keyframes nk-orbit {
-  to { transform: translate(-50%, -50%) rotate(360deg); }
+@keyframes orbit-nudge {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
 }
-@keyframes nk-orbit-md {
-  from { transform: translateX(-50%) rotate(0deg); }
-  to { transform: translateX(-50%) rotate(360deg); }
-}
-@keyframes nk-twinkle {
-  from { opacity: 0.25; transform: scale(0.45) rotate(0deg); }
-  to { opacity: 1; transform: scale(1) rotate(45deg); }
+@keyframes orbit-rise {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @layer components {
-  .nk-curtain {
+  .orbit-hero {
+    background: #f3f3f1;
+  }
+  .orbit-line-mask {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.04em;
+  }
+  .motion-ready .orbit-rise {
+    animation: orbit-rise 0.9s var(--ease-out-expo) both;
+    animation-delay: var(--d, 0s);
+  }
+  .orbit-nudge {
+    display: inline-block;
+    animation: orbit-nudge 1.6s ease-in-out infinite;
+  }
+  .orbit-focus:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 4px;
+  }
+
+  /* The stage is drawn at 640 × 760 and scaled to fit; the frame reserves the scaled size. */
+  .orbit-frame {
+    --s: 0.44;
+    position: relative;
+    width: calc(640px * var(--s));
+    height: calc(760px * var(--s));
+  }
+  .orbit-stage {
+    --cycle: calc(var(--n, 4) * 3s);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 640px;
+    height: 760px;
+    transform: scale(var(--s));
+    transform-origin: 0 0;
+    isolation: isolate;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .orbit-ring,
+  .orbit-ring-outer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 9999px;
+    pointer-events: none;
+  }
+  .orbit-ring {
+    width: 460px;
+    height: 460px;
+    margin: -230px 0 0 -230px;
+    border: 2px dashed rgb(0 0 0 / 0.28);
+  }
+  .orbit-ring-outer {
+    width: 560px;
+    height: 560px;
+    margin: -280px 0 0 -280px;
+    border: 1px solid rgb(0 0 0 / 0.1);
+    animation: orbit-spin 40s linear infinite;
+  }
+  .orbit-ring-dot {
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    margin-left: -6px;
+    border-radius: 9999px;
+    background: var(--accent);
+  }
+  .orbit-disc {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 5;
+    width: 250px;
+    height: 250px;
+    margin: -125px 0 0 -125px;
+    border-radius: 9999px;
+    background: #c2410c;
+    color: #fff;
+    animation: orbit-pulse 3s ease-in-out infinite;
+  }
+  .orbit-label {
     position: absolute;
     inset: 0;
-    z-index: 20;
     display: flex;
-    pointer-events: none;
-    overflow: hidden;
-  }
-  .nk-curtain-panel {
-    display: flex;
+    flex-direction: column;
     align-items: center;
-    width: 50%;
-    height: 100%;
-    background: #ff5a1f;
-    color: #fff;
+    justify-content: center;
+    padding: 0 30px;
+    border-radius: 9999px;
+    text-align: center;
+    opacity: 0;
+    visibility: hidden;
+    animation: orbit-label var(--cycle) linear infinite;
+    animation-delay: calc(var(--k, 0) * -3s);
+    will-change: transform, opacity;
   }
-  /* Full shorthand per panel: a nameless shorthand gets minified to "none". */
-  .nk-curtain-panel.left {
-    justify-content: flex-end;
-    animation: nk-curtain-left 10s cubic-bezier(0.76, 0, 0.24, 1) infinite both;
-  }
-  .nk-curtain-panel.right {
-    justify-content: flex-start;
-    animation: nk-curtain-right 10s cubic-bezier(0.76, 0, 0.24, 1) infinite both;
-  }
-  .nk-wordmark {
-    font-size: clamp(3.5rem, 13vw, 11rem);
-    animation: nk-wordmark 10s ease-in-out infinite both;
-  }
-  .nk-copy {
-    animation: nk-copy 10s ease-out infinite both;
-  }
-
-  .nk-stage {
-    position: relative;
-    isolation: isolate;
-  }
-  .nk-orbit {
+  .orb {
     position: absolute;
-    top: 55%;
+    top: 50%;
     left: 50%;
-    z-index: -1;
-    width: 600px;
-    height: 600px;
-    border: 2px dashed rgb(0 0 0 / 0.25);
-    border-radius: 9999px;
-    transform: translate(-50%, -50%);
-    animation: nk-orbit 18s linear infinite;
+    z-index: 2;
+    width: 0;
+    height: 0;
+    animation:
+      orbit-travel var(--cycle) linear infinite,
+      orbit-z var(--cycle) linear infinite;
+    animation-delay: calc(var(--k, 0) * -3s);
+    will-change: transform;
   }
-  .nk-orbit-dot {
+  .orb-link {
     position: absolute;
-    width: 14px;
-    height: 14px;
+    top: -80px;
+    left: -80px;
+    display: block;
+    width: 160px;
+    height: 160px;
     border-radius: 9999px;
+    opacity: 0;
+    visibility: hidden;
+    animation: orbit-size var(--cycle) ease-in-out infinite;
+    animation-delay: calc(var(--k, 0) * -3s);
+    will-change: transform, opacity;
   }
-  .nk-pop {
-    transform-origin: 50% 100%;
-    animation: nk-pop 10s infinite both;
-    animation-delay: calc(var(--i, 0) * 0.15s);
+  .orb-hover {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s var(--ease-soft);
   }
-  .nk-float {
-    animation: nk-float 3.6s ease-in-out infinite alternate;
-    animation-delay: calc(var(--i, 0) * 0.4s);
+  .orb-link:hover .orb-hover {
+    transform: scale(1.08);
   }
-  .nk-sparkle {
-    position: absolute;
-    z-index: 1;
-    animation: nk-twinkle 2.4s ease-in-out infinite alternate;
+  .orbit-stage:hover :is(.orb, .orb-link, .orbit-label, .orbit-disc, .orbit-ring-outer),
+  .orbit-stage:focus-within :is(.orb, .orb-link, .orbit-label, .orbit-disc, .orbit-ring-outer),
+  .orbit-stage[data-paused] :is(.orb, .orb-link, .orbit-label, .orbit-disc, .orbit-ring-outer) {
+    animation-play-state: paused;
   }
 
-  @media (max-width: 767px) {
-    /* Phones: same bottom anchoring, using the phone spacing (mt-10 above the row). */
-    .nk-orbit {
-      top: auto;
-      bottom: 1.25rem;
-      height: min(300px, calc(100% - 1.25rem + 2.5rem + 1.5rem));
-      width: auto;
-      aspect-ratio: 1;
-      transform: translateX(-50%);
-      animation-name: nk-orbit-md;
-    }
+  @media (min-width: 400px) {
+    .orbit-frame { --s: 0.55; }
   }
   @media (min-width: 768px) {
-    /* Laptop/desktop: the ring sits on the bottom of the product area with a
-       margin above the card edge (never clipped) and grows upward to pass
-       behind the button, sized from the space actually available. */
-    .nk-orbit {
-      top: auto;
-      bottom: max(6%, 1.25rem);
-      height: min(600px, calc(94% - 1.25rem + clamp(1.25rem, 4svh, 3.5rem) + 1.5rem));
-      width: auto;
-      aspect-ratio: 1;
-      transform: translateX(-50%);
-      animation-name: nk-orbit-md;
-    }
+    .orbit-frame { --s: 0.72; }
+  }
+  @media (min-width: 1024px) {
+    .orbit-frame { --s: 0.7; }
+  }
+  @media (min-width: 1280px) {
+    .orbit-frame { --s: 0.82; }
+  }
+  @media (min-width: 1280px) and (min-height: 940px) {
+    .orbit-frame { --s: 1; }
   }
 }
 
-/* Reduced motion: no curtain, everything static and visible. */
+/* Unlayered so it wins over the grid utilities on the list. */
+.orbit-static {
+  display: none;
+}
+
+/* Reduced motion: no orbit; a still row of the same clickable products. */
 @media (prefers-reduced-motion: reduce) {
-  .nk-curtain {
+  .orbit-frame {
     display: none;
   }
-  .nk-copy,
-  .nk-pop,
-  .nk-float,
-  .nk-orbit,
-  .nk-sparkle {
+  .orbit-static {
+    display: grid;
+  }
+  .orbit-nudge,
+  .orbit-rise {
     animation: none !important;
-    opacity: 1;
-  }
-  .nk-orbit {
-    transform: translate(-50%, -50%);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .nk-orbit {
-    transform: translateX(-50%);
   }
 }

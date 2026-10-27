@@ -167,3 +167,43 @@ export function AccessDenied({ section }: { section: string }) {
     </Card>
   );
 }
+
+/** One-click filter tabs above a list. Each tab is a plain link, so it works without JavaScript. */
+export function StatusTabs({
+  label,
+  tabs,
+  active,
+}: {
+  label: string;
+  tabs: { id: string; label: string; href: string; count?: number | null }[];
+  active: string;
+}) {
+  return (
+    <nav aria-label={label} className="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
+      <div className="flex w-max gap-1 rounded-md border border-line-soft bg-card p-1">
+        {tabs.map((t) => (
+          <Link
+            key={t.id}
+            href={t.href}
+            aria-current={active === t.id ? "page" : undefined}
+            className={cn(
+              "inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-sm px-3 text-xs font-medium text-ink-soft hover:bg-surface",
+              active === t.id && "bg-ink text-white hover:bg-ink",
+            )}
+          >
+            {t.label}
+            {t.count ? (
+              <span className={cn("rounded-full bg-accent px-1.5 text-[10px] leading-4 text-accent-ink tabular-nums", active === t.id && "bg-white text-ink")}>
+                {t.count}
+              </span>
+            ) : null}
+          </Link>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+/** Makes a whole table row open the link inside it (put `rowLink` on that link). */
+export const clickableRow = "relative cursor-pointer";
+export const rowLink = "after:absolute after:inset-0";

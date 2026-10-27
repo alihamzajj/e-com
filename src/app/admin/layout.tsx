@@ -4,6 +4,7 @@ import { AdminShell } from "@/components/admin/admin-shell";
 import { requireStaff } from "@/lib/auth/session";
 import { getStoreSettings } from "@/features/settings/queries";
 import { navFor } from "@/features/admin/nav";
+import { getAttentionCounts } from "@/features/admin/attention";
 import { Skeleton } from "@/components/ui/primitives";
 
 export const metadata: Metadata = {
@@ -15,11 +16,18 @@ async function AdminChrome({ children }: { children: React.ReactNode }) {
   // Staff only. Customers are redirected; every page and action re-checks its
   // own permission, and RLS enforces it again in the database.
   const profile = await requireStaff();
-  const settings = await getStoreSettings();
+  const [settings, counts] = await Promise.all([getStoreSettings(), getAttentionCounts(profile)]);
+  const sum = (...n: (number | null)[]) => n.reduce<number>((a, b) => a + (b ?? 0), 0);
   return (
     <AdminShell
       storeName={settings.storeName}
       items={navFor(profile)}
+      badges={{
+        orders: sum(counts.toConfirm),
+        products: sum(counts.lowStock),
+        questions: sum(counts.questions, counts.reports),
+        support: sum(counts.support),
+      }}
       user={{ name: profile.full_name || "Staff member", email: profile.email ?? "", role: profile.role }}
     >
       {children}

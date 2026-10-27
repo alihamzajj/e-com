@@ -24,6 +24,15 @@ import { cn } from "@/lib/utils/cn";
 import { signOutAction } from "@/actions/admin/session";
 import type { NavItem, NavKey } from "@/features/admin/nav";
 
+type Badges = Partial<Record<NavKey, number>>;
+
+const BADGE_HINTS: Partial<Record<NavKey, string>> = {
+  orders: "waiting to be confirmed",
+  products: "low or out of stock",
+  questions: "to answer or review",
+  support: "new messages",
+};
+
 const ICONS: Record<NavKey, React.ComponentType<{ className?: string }>> = {
   dashboard: LayoutDashboard,
   orders: ShoppingBag,
@@ -42,32 +51,56 @@ type Props = {
   storeName: string;
   user: { name: string; email: string; role: string };
   items: NavItem[];
+  badges: Badges;
   children: React.ReactNode;
 };
 
-function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => void }) {
+function NavLinks({ items, badges, onNavigate }: { items: NavItem[]; badges: Badges; onNavigate?: () => void }) {
   const pathname = usePathname();
+  const groups = [...new Set(items.map((i) => i.group))];
   return (
-    <nav aria-label="Admin" className="grid gap-0.5">
-      {items.map((item) => {
-        const Icon = ICONS[item.key];
-        const active = item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);
-        return (
-          <Link
-            key={item.key}
-            href={item.href}
-            onClick={onNavigate}
-            aria-current={active ? "page" : undefined}
-            className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2 text-sm text-ink-soft transition-colors hover:bg-surface hover:text-ink",
-              active && "bg-ink text-white hover:bg-ink hover:text-white",
-            )}
-          >
-            <Icon className="size-4 shrink-0" />
-            {item.label}
-          </Link>
-        );
-      })}
+    <nav aria-label="Admin" className="grid gap-4">
+      {groups.map((group) => (
+        <div key={group || "main"} className="grid gap-0.5">
+          {group ? (
+            <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted">{group}</p>
+          ) : null}
+          {items
+            .filter((i) => i.group === group)
+            .map((item) => {
+              const Icon = ICONS[item.key];
+              const active = item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);
+              const badge = badges[item.key] ?? 0;
+              return (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  onClick={onNavigate}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm text-ink-soft transition-colors hover:bg-surface hover:text-ink",
+                    active && "bg-ink text-white hover:bg-ink hover:text-white",
+                  )}
+                >
+                  <Icon className="size-4 shrink-0" />
+                  <span className="flex-1">{item.label}</span>
+                  {badge > 0 ? (
+                    <span
+                      title={`${badge} ${BADGE_HINTS[item.key] ?? ""}`}
+                      className={cn(
+                        "min-w-5 rounded-full bg-accent px-1.5 text-center text-[11px] font-semibold leading-5 text-accent-ink tabular-nums",
+                        active && "bg-white text-ink",
+                      )}
+                    >
+                      {badge > 99 ? "99+" : badge}
+                      <span className="sr-only"> {BADGE_HINTS[item.key]}</span>
+                    </span>
+                  ) : null}
+                </Link>
+              );
+            })}
+        </div>
+      ))}
     </nav>
   );
 }
@@ -98,8 +131,9 @@ function UserBlock({ user }: { user: Props["user"] }) {
   );
 }
 
-export function AdminShell({ storeName, user, items, children }: Props) {
+export function AdminShell({ storeName, user, items, badges, children }: Props) {
   const [open, setOpen] = React.useState(false);
+  const pending = Object.values(badges).reduce((a, b) => a + (b ?? 0), 0);
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[248px_minmax(0,1fr)]">
       <aside className="sticky top-0 hidden h-dvh flex-col border-r border-line-soft bg-card lg:flex">
@@ -112,7 +146,7 @@ export function AdminShell({ storeName, user, items, children }: Props) {
           </span>
         </div>
         <div className="flex-1 overflow-y-auto p-3">
-          <NavLinks items={items} />
+          <NavLinks items={items} badges={badges} />
         </div>
         <UserBlock user={user} />
       </aside>
@@ -120,13 +154,14 @@ export function AdminShell({ storeName, user, items, children }: Props) {
       <div className="min-w-0">
         <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-line-soft bg-card/95 px-4 backdrop-blur lg:hidden">
           <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger className="rounded-sm p-2 text-ink hover:bg-surface" aria-label="Open navigation">
+            <DialogTrigger className="relative rounded-sm p-2 text-ink hover:bg-surface" aria-label="Open navigation">
               <Menu className="size-5" />
+              {pending > 0 ? <span aria-hidden className="absolute right-1.5 top-1.5 size-2 rounded-full bg-accent" /> : null}
             </DialogTrigger>
             <SheetContent title={`${storeName} admin`} side="left">
               <div className="flex h-full flex-col">
-                <div className="flex-1 p-3">
-                  <NavLinks items={items} onNavigate={() => setOpen(false)} />
+                <div className="flex-1 overflow-y-auto p-3">
+                  <NavLinks items={items} badges={badges} onNavigate={() => setOpen(false)} />
                 </div>
                 <UserBlock user={user} />
               </div>

@@ -55,9 +55,16 @@ export const EMPTY_PRODUCT: ProductFormValues = {
   variants: [{ sku: "", title: "Default", optionValues: [], price: "", salePrice: "", stockQuantity: "0", isActive: true }],
 };
 
+/** SKU for a variant left blank, e.g. "LEATHER-JACKET-BLACK-M". */
+function autoSku(slug: string, optionValues: string[]) {
+  const part = (s: string) => slugify(s).toUpperCase();
+  return [part(slug).slice(0, 40) || "ITEM", ...optionValues.map(part).filter(Boolean)].join("-").slice(0, 60);
+}
+
 function toInput(v: ProductFormValues) {
   const names = v.optionNames.map((o) => o.value.trim()).filter(Boolean);
   const blank = (s: string) => (s.trim() === "" ? undefined : s.trim());
+  const typed = new Set(v.variants.map((variant) => variant.sku.trim().toUpperCase()).filter(Boolean));
   return {
     name: v.name,
     slug: v.slug,
@@ -79,9 +86,16 @@ function toInput(v: ProductFormValues) {
         if (value) options[n] = value;
       });
       const autoTitle = Object.values(options).join(" / ") || "Default";
+      let sku = variant.sku.trim();
+      if (!sku) {
+        const base = autoSku(v.slug || v.name, Object.values(options));
+        sku = base;
+        for (let n = 2; typed.has(sku); n++) sku = `${base}-${n}`;
+        typed.add(sku);
+      }
       return {
         id: variant.id,
-        sku: variant.sku,
+        sku,
         title: variant.title.trim() || autoTitle,
         options,
         price: blank(variant.price),
@@ -176,7 +190,7 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
               })}
             />
           </Field>
-          <Field label="URL slug" htmlFor="slug" required error={err("slug")} hint="Used in the product URL: /products/your-slug">
+          <Field label="Web address" htmlFor="slug" required error={err("slug")} hint="Filled in from the name. Shown in the link: /products/your-product">
             <Input id="slug" aria-invalid={Boolean(err("slug"))} {...register("slug", { onChange: () => setSlugTouched(true) })} />
           </Field>
           <Field label="Short description" htmlFor="shortDescription" error={err("shortDescription")} hint="Shown on product cards (max 300 characters).">
@@ -210,7 +224,8 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
           <div>
             <h2 className="text-sm font-semibold">Options & variants</h2>
             <p className="mt-0.5 text-xs text-muted">
-              Add up to 3 options (e.g. Color, Size). Each variant has its own SKU and stock. Leave price empty to use the product price.
+              Selling one version only? Just set its stock below. For sizes or colours, add an option (e.g. Size), then one row per
+              choice. Leave SKU and price empty to fill them in automatically.
             </p>
           </div>
           <div className="flex flex-wrap items-end gap-2">
@@ -247,15 +262,15 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
             <table className="w-full min-w-[760px] text-sm">
               <thead className="text-left text-xs text-muted">
                 <tr>
-                  <th className="pb-2 font-medium">SKU *</th>
+                  <th className="pb-2 font-medium">SKU</th>
                   {names.map((n, i) => (
                     <th key={i} className="pb-2 font-medium">{n.value || `Option ${i + 1}`}</th>
                   ))}
-                  <th className="pb-2 font-medium">Title</th>
+                  <th className="pb-2 font-medium">Name</th>
                   <th className="pb-2 font-medium">Price ({currency})</th>
                   <th className="pb-2 font-medium">Sale</th>
                   <th className="pb-2 font-medium">Stock</th>
-                  <th className="pb-2 font-medium">Active</th>
+                  <th className="pb-2 font-medium">On sale</th>
                   <th />
                 </tr>
               </thead>
@@ -263,7 +278,7 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
                 {variants.fields.map((v, i) => (
                   <tr key={v.key} className="border-t border-line-soft">
                     <td className="py-2 pr-2">
-                      <Input aria-label={`Variant ${i + 1} SKU`} className="h-9 w-32 font-mono text-xs uppercase" aria-invalid={Boolean(err(`variants.${i}.sku`))} {...register(`variants.${i}.sku`)} />
+                      <Input aria-label={`Variant ${i + 1} SKU`} placeholder="Auto" className="h-9 w-32 font-mono text-xs uppercase" aria-invalid={Boolean(err(`variants.${i}.sku`))} {...register(`variants.${i}.sku`)} />
                       {err(`variants.${i}.sku`) ? <p className="mt-1 text-xs text-danger">{err(`variants.${i}.sku`)}</p> : null}
                     </td>
                     {names.map((_, oi) => (
@@ -284,7 +299,7 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
                     <td className="py-2 pr-2">
                       {v.id ? (
                         <span className="inline-flex h-9 items-center text-xs text-muted" title="Use Inventory below to adjust stock">
-                          {v.stockQuantity} (adjust below)
+                          {v.stockQuantity} · change in Inventory below
                         </span>
                       ) : (
                         <Input aria-label={`Variant ${i + 1} opening stock`} inputMode="numeric" className="h-9 w-20" {...register(`variants.${i}.stockQuantity`)} />
@@ -321,9 +336,9 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
         <Card className="grid gap-4 p-5">
           <Field label="Status" htmlFor="status">
             <NativeSelect id="status" {...register("status")}>
-              <option value="draft">Draft (hidden)</option>
-              <option value="active">Active (published)</option>
-              <option value="archived">Archived</option>
+              <option value="draft">Draft (hidden from customers)</option>
+              <option value="active">Active (on sale in the store)</option>
+              <option value="archived">Archived (hidden, kept for records)</option>
             </NativeSelect>
           </Field>
           <label className="flex items-center gap-2 text-sm">
@@ -348,11 +363,17 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
           <Field label="Cost price" htmlFor="costPrice" error={err("costPrice")} hint="Private. Used for profit reports.">
             <Input id="costPrice" inputMode="decimal" {...register("costPrice")} />
           </Field>
-          <Field label="Low-stock threshold" htmlFor="lowStockThreshold" error={err("lowStockThreshold")}>
+          <Field label="Low-stock alert at" htmlFor="lowStockThreshold" error={err("lowStockThreshold")} hint="You'll be warned on the dashboard when stock drops to this number.">
             <Input id="lowStockThreshold" inputMode="numeric" {...register("lowStockThreshold")} />
           </Field>
         </Card>
-        <Button type="submit" size="lg" loading={isSubmitting}>
+      </div>
+
+      <div className="sticky bottom-4 z-10 flex items-center justify-end gap-3 lg:col-span-2">
+        {formState.isDirty ? (
+          <span className="rounded-full border border-line-soft bg-card px-3 py-1 text-xs text-muted shadow-[var(--shadow-pop)]">Unsaved changes</span>
+        ) : null}
+        <Button type="submit" size="lg" loading={isSubmitting} className="shadow-[var(--shadow-pop)]">
           {productId ? "Save changes" : "Create product"}
         </Button>
       </div>

@@ -12,7 +12,7 @@ import { Table, TD, TH, THead, TR } from "@/components/ui/table";
 import { formatDateTime } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 
-export const metadata = { title: "Support" };
+export const metadata = { title: "Messages" };
 const PAGE_SIZE = 25;
 const STATUSES = ["new", "open", "resolved"] as const;
 
@@ -43,7 +43,7 @@ async function Support({ searchParams }: { searchParams: PageProps<"/admin/suppo
 
   return (
     <div className="space-y-5">
-      <PageHeading title="Support" description="Messages from the contact form." />
+      <PageHeading title="Messages" description="What customers sent through the contact form." />
       <nav aria-label="Status" className="flex flex-wrap gap-1 rounded-md border border-line-soft bg-card p-1">
         {tabs.map((t) => (
           <Link

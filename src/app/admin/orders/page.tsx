@@ -7,11 +7,12 @@ import { getStoreSettings } from "@/features/settings/queries";
 import { buildHref, pageParam, safeSearch, searchParam } from "@/features/admin/guard";
 import { ORDER_STATUSES, PAYMENT_STATUSES } from "@/features/admin/orders";
 import { resolveRange } from "@/features/admin/date-range";
-import { FilterBar, FilterField, filterInput, OrderStatusBadge, PaymentStatusBadge, TableSkeleton } from "@/components/admin/common";
+import { getAttentionCounts, TO_SHIP_STATUSES } from "@/features/admin/attention";
+import { clickableRow, FilterBar, FilterField, filterInput, OrderStatusBadge, PaymentStatusBadge, rowLink, StatusTabs, TableSkeleton } from "@/components/admin/common";
 import { Badge, Card, EmptyState, PageHeading } from "@/components/ui/primitives";
 import { Pagination } from "@/components/ui/pagination";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
-import { formatDateTime, formatMoney, ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/utils/format";
+import { formatDateTime, formatMoney, PAYMENT_STATUS_LABELS } from "@/lib/utils/format";
 
 export const metadata = { title: "Orders" };
 const PAGE_SIZE = 25;
@@ -22,7 +23,7 @@ type Row = {
 };
 
 async function Orders({ searchParams }: { searchParams: PageProps<"/admin/orders">["searchParams"] }) {
-  await requirePermission("orders");
+  const profile = await requirePermission("orders");
   const sp = await searchParams;
   const settings = await getStoreSettings();
   const supabase = await createClient();
@@ -41,7 +42,8 @@ async function Orders({ searchParams }: { searchParams: PageProps<"/admin/orders
     .order("placed_at", { ascending: false })
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
   if (q) query = query.or(`order_number.ilike.%${q}%,email.ilike.%${q}%,customer_name.ilike.%${q}%,phone.ilike.%${q}%`);
-  if (status && (ORDER_STATUSES as string[]).includes(status)) query = query.eq("status", status);
+  if (status === "to_ship") query = query.in("status", [...TO_SHIP_STATUSES]);
+  else if (status && (ORDER_STATUSES as string[]).includes(status)) query = query.eq("status", status);
   if (payment && (PAYMENT_STATUSES as readonly string[]).includes(payment)) query = query.eq("payment_status", payment);
   if (method === "cod" || method === "online") query = query.eq("payment_method", method);
   if (from || to) {
@@ -49,7 +51,7 @@ async function Orders({ searchParams }: { searchParams: PageProps<"/admin/orders
     query = query.gte("placed_at", range.from.toISOString()).lt("placed_at", range.to.toISOString());
   }
 
-  const { data, count, error } = await query;
+  const [{ data, count, error }, attention] = await Promise.all([query, getAttentionCounts(profile)]);
   const rows = (data ?? []) as Row[];
   const total = count ?? 0;
   const current = { q, status, payment, method, from, to };
@@ -57,15 +59,23 @@ async function Orders({ searchParams }: { searchParams: PageProps<"/admin/orders
   return (
     <div className="space-y-5">
       <PageHeading title="Orders" description={`${total} order${total === 1 ? "" : "s"}`} />
+      <StatusTabs
+        label="Order status"
+        active={status ?? "all"}
+        tabs={[
+          { id: "all", label: "All" },
+          { id: "pending", label: "To confirm", count: attention.toConfirm },
+          { id: "to_ship", label: "To ship", count: attention.toShip },
+          { id: "shipped", label: "Shipped" },
+          { id: "delivered", label: "Delivered" },
+          { id: "cancelled", label: "Cancelled" },
+          { id: "returned", label: "Returned" },
+        ].map((t) => ({ ...t, href: buildHref("/admin/orders", { ...current, status: undefined }, { status: t.id === "all" ? undefined : t.id }) }))}
+      />
       <FilterBar action="/admin/orders">
+        {status ? <input type="hidden" name="status" value={status} /> : null}
         <FilterField label="Search" className="min-w-48 flex-1">
           <input name="q" defaultValue={q} placeholder="Order #, email, name, phone" className={filterInput} />
-        </FilterField>
-        <FilterField label="Status">
-          <select name="status" defaultValue={status ?? ""} className={filterInput}>
-            <option value="">All</option>
-            {ORDER_STATUSES.map((s) => <option key={s} value={s}>{ORDER_STATUS_LABELS[s]}</option>)}
-          </select>
         </FilterField>
         <FilterField label="Payment">
           <select name="payment" defaultValue={payment ?? ""} className={filterInput}>
@@ -96,8 +106,8 @@ async function Orders({ searchParams }: { searchParams: PageProps<"/admin/orders
             </THead>
             <tbody>
               {rows.map((o) => (
-                <TR key={o.id}>
-                  <TD><Link href={`/admin/orders/${o.id}`} className="font-medium hover:underline">{o.order_number}</Link></TD>
+                <TR key={o.id} className={clickableRow}>
+                  <TD><Link href={`/admin/orders/${o.id}`} className={`font-medium hover:underline ${rowLink}`}>{o.order_number}</Link></TD>
                   <TD>
                     <span className="block">{o.customer_name}</span>
                     <span className="text-xs text-muted">{o.email}</span>

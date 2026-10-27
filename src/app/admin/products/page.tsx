@@ -5,7 +5,8 @@ import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getStoreSettings } from "@/features/settings/queries";
 import { buildHref, pageParam, safeSearch, searchParam } from "@/features/admin/guard";
-import { FilterBar, FilterField, filterInput, ProductStatusBadge, TableSkeleton } from "@/components/admin/common";
+import { lowStockProductIds } from "@/features/admin/attention";
+import { clickableRow, FilterBar, FilterField, filterInput, ProductStatusBadge, rowLink, StatusTabs, TableSkeleton } from "@/components/admin/common";
 import { Button } from "@/components/ui/button";
 import { Card, EmptyState, PageHeading } from "@/components/ui/primitives";
 import { Pagination } from "@/components/ui/pagination";
@@ -32,17 +33,6 @@ type Row = {
   product_images: { url: string; position: number }[];
 };
 
-async function lowStockProductIds(): Promise<string[]> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("product_variants")
-    .select("product_id, stock_quantity, is_active, products!inner(low_stock_threshold)")
-    .eq("is_active", true)
-    .limit(5000);
-  type V = { product_id: string; stock_quantity: number; products: { low_stock_threshold: number } };
-  return [...new Set(((data ?? []) as unknown as V[]).filter((v) => v.stock_quantity <= v.products.low_stock_threshold).map((v) => v.product_id))];
-}
-
 async function ProductList({ searchParams }: { searchParams: PageProps<"/admin/products">["searchParams"] }) {
   await requirePermission("products");
   const sp = await searchParams;
@@ -54,7 +44,10 @@ async function ProductList({ searchParams }: { searchParams: PageProps<"/admin/p
   const stock = searchParam(sp, "stock");
   const page = pageParam(sp);
 
-  const { data: categories } = await supabase.from("categories").select("id, name").order("sort_order").order("name");
+  const [{ data: categories }, lowStockIds] = await Promise.all([
+    supabase.from("categories").select("id, name").order("sort_order").order("name"),
+    lowStockProductIds(),
+  ]);
 
   let query = supabase
     .from("products")
@@ -67,10 +60,7 @@ async function ProductList({ searchParams }: { searchParams: PageProps<"/admin/p
   if (q) query = query.or(`name.ilike.%${q}%,slug.ilike.%${q}%`);
   if (status && ["draft", "active", "archived"].includes(status)) query = query.eq("status", status);
   if (category) query = category === "none" ? query.is("category_id", null) : query.eq("category_id", category);
-  if (stock === "low") {
-    const ids = await lowStockProductIds();
-    query = query.in("id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]);
-  }
+  if (stock === "low") query = query.in("id", lowStockIds.length ? lowStockIds : ["00000000-0000-0000-0000-000000000000"]);
   const { data, count, error } = await query;
   const rows = (data ?? []) as unknown as Row[];
   const total = count ?? 0;
@@ -87,17 +77,22 @@ async function ProductList({ searchParams }: { searchParams: PageProps<"/admin/p
           </Button>
         }
       />
+      <StatusTabs
+        label="Product status"
+        active={stock === "low" ? "low" : status ?? "all"}
+        tabs={[
+          { id: "all", label: "All", href: buildHref("/admin/products", { q, category }, {}) },
+          { id: "active", label: "Active", href: buildHref("/admin/products", { q, category }, { status: "active" }) },
+          { id: "draft", label: "Drafts", href: buildHref("/admin/products", { q, category }, { status: "draft" }) },
+          { id: "archived", label: "Archived", href: buildHref("/admin/products", { q, category }, { status: "archived" }) },
+          { id: "low", label: "Low stock", count: lowStockIds.length, href: buildHref("/admin/products", { q, category }, { stock: "low" }) },
+        ]}
+      />
       <FilterBar action="/admin/products">
+        {status ? <input type="hidden" name="status" value={status} /> : null}
+        {stock ? <input type="hidden" name="stock" value={stock} /> : null}
         <FilterField label="Search" className="min-w-48 flex-1">
-          <input name="q" defaultValue={q} placeholder="Name or slug" className={filterInput} />
-        </FilterField>
-        <FilterField label="Status">
-          <select name="status" defaultValue={status ?? ""} className={filterInput}>
-            <option value="">All</option>
-            <option value="active">Active</option>
-            <option value="draft">Draft</option>
-            <option value="archived">Archived</option>
-          </select>
+          <input name="q" defaultValue={q} placeholder="Product name" className={filterInput} />
         </FilterField>
         <FilterField label="Category">
           <select name="category" defaultValue={category ?? ""} className={filterInput}>
@@ -106,12 +101,6 @@ async function ProductList({ searchParams }: { searchParams: PageProps<"/admin/p
             {((categories ?? []) as { id: string; name: string }[]).map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
-          </select>
-        </FilterField>
-        <FilterField label="Stock">
-          <select name="stock" defaultValue={stock ?? ""} className={filterInput}>
-            <option value="">Any</option>
-            <option value="low">Low or out of stock</option>
           </select>
         </FilterField>
       </FilterBar>
@@ -131,7 +120,7 @@ async function ProductList({ searchParams }: { searchParams: PageProps<"/admin/p
         <Card>
           <Table>
             <THead>
-              <tr><TH>Product</TH><TH>Category</TH><TH>Status</TH><TH className="text-right">Price</TH><TH className="text-right">Stock</TH><TH>Updated</TH></tr>
+              <tr><TH>Product</TH><TH>Category</TH><TH>Status</TH><TH className="text-right">Price</TH><TH className="text-right">In stock</TH><TH>Updated</TH></tr>
             </THead>
             <tbody>
               {rows.map((p) => {
@@ -140,9 +129,9 @@ async function ProductList({ searchParams }: { searchParams: PageProps<"/admin/p
                 const low = active.some((v) => v.stock_quantity <= p.low_stock_threshold);
                 const image = [...p.product_images].sort((a, b) => a.position - b.position)[0];
                 return (
-                  <TR key={p.id}>
+                  <TR key={p.id} className={clickableRow}>
                     <TD>
-                      <Link href={`/admin/products/${p.id}`} className="flex items-center gap-3">
+                      <Link href={`/admin/products/${p.id}`} className={`flex items-center gap-3 ${rowLink}`}>
                         <span className="size-10 shrink-0 overflow-hidden rounded-md bg-surface">
                           {image ? (
                             // eslint-disable-next-line @next/next/no-img-element

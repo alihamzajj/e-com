@@ -16,7 +16,7 @@ import { formatDateTime } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import type { StoreSettings } from "@/types/domain";
 
-export const metadata = { title: "Q&A & reports" };
+export const metadata = { title: "Q&A & reviews" };
 const PAGE_SIZE = 20;
 
 const TABS = [
@@ -198,7 +198,7 @@ async function Questions({ searchParams }: { searchParams: PageProps<"/admin/que
 
   return (
     <div className="space-y-5">
-      <PageHeading title="Q&A & reports" description="Answer product questions and moderate customer content." />
+      <PageHeading title="Q&A & reviews" description="Answer product questions, and hide reviews or questions customers have reported." />
       <nav aria-label="Moderation sections" className="flex flex-wrap gap-1 rounded-md border border-line-soft bg-card p-1">
         {TABS.map((t) => (
           <Link

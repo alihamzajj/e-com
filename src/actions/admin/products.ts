@@ -5,7 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isServiceRoleConfigured } from "@/lib/config/server";
-import { productSchema } from "@/lib/validation/schemas";
+import { productSchema, type ProductInput } from "@/lib/validation/schemas";
 import { fail, type ActionResult } from "@/lib/errors";
 import { actionProfile, FORBIDDEN } from "@/features/admin/guard";
 import { removeImage, uploadImage } from "@/lib/storage/upload";
@@ -19,12 +19,12 @@ function invalidateCatalog(...slugs: (string | null | undefined)[]) {
 type DbError = { code?: string; message?: string; details?: string | null };
 
 /** Names the clashing slug or SKU instead of a generic "already in use". */
-function saveFailed(error: DbError, context: string): { ok: false; error: string } {
+function saveFailed(error: DbError, context: string, slug?: string): { ok: false; error: string } {
   if (error.code === "23505") {
     const text = `${error.message ?? ""} ${error.details ?? ""}`;
     const value = text.match(/=\((.*?)\)/)?.[1];
     if (text.includes("slug")) {
-      return { ok: false, error: `Another product already uses the web address "${value ?? "this slug"}". It may be one you added earlier, so check Products (including Drafts), or change the Slug field.` };
+      return { ok: false, error: `Another product already uses the web address "${value ?? slug ?? "this slug"}". It may be one you added earlier, so check Products (including Drafts), or change the Slug field.` };
     }
     if (text.includes("sku")) {
       return { ok: false, error: `SKU "${value ?? ""}" is already used by another product. Type a different SKU for that row.` };
@@ -34,6 +34,36 @@ function saveFailed(error: DbError, context: string): { ok: false; error: string
     }
   }
   return fail(error, context);
+}
+
+/** First of `base`, `base-2`, `base-3`… not in `taken`, kept within `max` characters. */
+function firstFree(base: string, taken: Set<string>, max: number) {
+  if (!taken.has(base)) return base;
+  for (let n = 2; ; n++) {
+    const suffix = `-${n}`;
+    const candidate = base.slice(0, max - suffix.length).replace(/-+$/, "") + suffix;
+    if (!taken.has(candidate)) return candidate;
+  }
+}
+
+/**
+ * A new product reusing a name that's already in the catalog (often a forgotten
+ * draft) gets the next free slug and SKUs instead of failing to save.
+ */
+async function freeSlugAndSkus(supabase: Awaited<ReturnType<typeof createClient>>, p: ProductInput) {
+  const { data: slugRows } = await supabase.from("products").select("slug").like("slug", `${p.slug}%`);
+  const slug = firstFree(p.slug, new Set(((slugRows ?? []) as { slug: string }[]).map((r) => r.slug)), 80);
+
+  const skus = p.variants.map((v) => v.sku);
+  const candidates = skus.flatMap((sku) => [sku, ...Array.from({ length: 5 }, (_, i) => `${sku.slice(0, 60)}-${i + 2}`)]);
+  const { data: skuRows } = await supabase.from("product_variants").select("sku").in("sku", candidates);
+  const taken = new Set(((skuRows ?? []) as { sku: string }[]).map((r) => r.sku));
+  const variants = p.variants.map((v) => {
+    const sku = firstFree(v.sku, taken, 64);
+    taken.add(sku);
+    return { ...v, sku };
+  });
+  return { ...p, slug, variants };
 }
 
 /** Variant ids that appear on any order. Uses the service role only for this count. */
@@ -62,8 +92,8 @@ export async function saveProductAction(
   if (!parsed.success) {
     return { ok: false, error: "Please fix the highlighted fields.", fieldErrors: z.flattenError(parsed.error).fieldErrors };
   }
-  const p = parsed.data;
   const supabase = await createClient();
+  const p = productId ? parsed.data : await freeSlugAndSkus(supabase, parsed.data);
 
   const row = {
     name: p.name,
@@ -88,10 +118,10 @@ export async function saveProductAction(
     if (!before) return { ok: false, error: "Product not found." };
     oldSlug = (before as { slug: string }).slug;
     const { error } = await supabase.from("products").update(row).eq("id", id);
-    if (error) return saveFailed(error, "admin.product.update");
+    if (error) return saveFailed(error, "admin.product.update", p.slug);
   } else {
     const { data, error } = await supabase.from("products").insert(row).select("id").single();
-    if (error) return saveFailed(error, "admin.product.insert");
+    if (error) return saveFailed(error, "admin.product.insert", p.slug);
     id = (data as { id: string }).id;
   }
 
@@ -145,7 +175,8 @@ export async function saveProductAction(
   }
 
   invalidateCatalog(p.slug, oldSlug);
-  const saved = productId ? "Product saved." : "Product created.";
+  const renamed = p.slug !== parsed.data.slug ? ` A product named like this already existed, so its web address is /products/${p.slug}.` : "";
+  const saved = (productId ? "Product saved." : "Product created.") + renamed;
   const message = p.status === "active" ? saved : `${saved} It's hidden from the store until Status is set to Active.`;
   return { ok: true, data: { id: id!, slug: p.slug }, message };
 }

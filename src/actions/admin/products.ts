@@ -16,6 +16,26 @@ function invalidateCatalog(...slugs: (string | null | undefined)[]) {
   for (const slug of new Set(slugs.filter(Boolean))) updateTag(`product:${slug}`);
 }
 
+type DbError = { code?: string; message?: string; details?: string | null };
+
+/** Names the clashing slug or SKU instead of a generic "already in use". */
+function saveFailed(error: DbError, context: string): { ok: false; error: string } {
+  if (error.code === "23505") {
+    const text = `${error.message ?? ""} ${error.details ?? ""}`;
+    const value = text.match(/=\((.*?)\)/)?.[1];
+    if (text.includes("slug")) {
+      return { ok: false, error: `Another product already uses the web address "${value ?? "this slug"}". It may be one you added earlier, so check Products (including Drafts), or change the Slug field.` };
+    }
+    if (text.includes("sku")) {
+      return { ok: false, error: `SKU "${value ?? ""}" is already used by another product. Type a different SKU for that row.` };
+    }
+    if (text.includes("options")) {
+      return { ok: false, error: "Two variants have the same option values. Give each row a different choice." };
+    }
+  }
+  return fail(error, context);
+}
+
 /** Variant ids that appear on any order. Uses the service role only for this count. */
 async function variantsWithOrders(variantIds: string[]): Promise<Set<string>> {
   if (variantIds.length === 0) return new Set();
@@ -68,12 +88,19 @@ export async function saveProductAction(
     if (!before) return { ok: false, error: "Product not found." };
     oldSlug = (before as { slug: string }).slug;
     const { error } = await supabase.from("products").update(row).eq("id", id);
-    if (error) return fail(error, "admin.product.update");
+    if (error) return saveFailed(error, "admin.product.update");
   } else {
     const { data, error } = await supabase.from("products").insert(row).select("id").single();
-    if (error) return fail(error, "admin.product.insert");
+    if (error) return saveFailed(error, "admin.product.insert");
     id = (data as { id: string }).id;
   }
+
+  // A new product whose variants fail to save is removed again, so a retry
+  // doesn't trip over a hidden half-created copy.
+  const variantFailed = async (error: DbError, context: string) => {
+    if (!productId) await supabase.from("products").delete().eq("id", id);
+    return saveFailed(error, context);
+  };
 
   // Variants: remove (or deactivate when they have order history), update, insert.
   const { data: existingRows } = await supabase.from("product_variants").select("id").eq("product_id", id);
@@ -86,11 +113,11 @@ export async function saveProductAction(
     const toDeactivate = removed.filter((vid) => withOrders.has(vid));
     if (toDelete.length) {
       const { error } = await supabase.from("product_variants").delete().in("id", toDelete);
-      if (error) return fail(error, "admin.variant.delete");
+      if (error) return variantFailed(error, "admin.variant.delete");
     }
     if (toDeactivate.length) {
       const { error } = await supabase.from("product_variants").update({ is_active: false }).in("id", toDeactivate);
-      if (error) return fail(error, "admin.variant.deactivate");
+      if (error) return variantFailed(error, "admin.variant.deactivate");
     }
   }
 
@@ -108,12 +135,12 @@ export async function saveProductAction(
       // Existing stock is changed only through admin_adjust_stock (atomic delta),
       // so a stale form can never overwrite units sold in the meantime.
       const { error } = await supabase.from("product_variants").update(fields).eq("id", v.id).eq("product_id", id);
-      if (error) return fail(error, "admin.variant.update");
+      if (error) return variantFailed(error, "admin.variant.update");
     } else {
       const { error } = await supabase
         .from("product_variants")
         .insert({ ...fields, product_id: id, stock_quantity: v.stockQuantity });
-      if (error) return fail(error, "admin.variant.insert");
+      if (error) return variantFailed(error, "admin.variant.insert");
     }
   }
 

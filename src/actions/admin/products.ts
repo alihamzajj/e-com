@@ -118,7 +118,9 @@ export async function saveProductAction(
   }
 
   invalidateCatalog(p.slug, oldSlug);
-  return { ok: true, data: { id: id!, slug: p.slug }, message: productId ? "Product saved." : "Product created." };
+  const saved = productId ? "Product saved." : "Product created.";
+  const message = p.status === "active" ? saved : `${saved} It's hidden from the store until Status is set to Active.`;
+  return { ok: true, data: { id: id!, slug: p.slug }, message };
 }
 
 export async function deleteProductAction(productId: string): Promise<ActionResult<{ archived: boolean }>> {

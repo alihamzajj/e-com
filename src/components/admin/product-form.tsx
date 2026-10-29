@@ -49,7 +49,7 @@ export const EMPTY_PRODUCT: ProductFormValues = {
   price: "",
   salePrice: "",
   costPrice: "",
-  status: "draft",
+  status: "active",
   isFeatured: false,
   lowStockThreshold: "5",
   variants: [{ sku: "", title: "Default", optionValues: [], price: "", salePrice: "", stockQuantity: "0", isActive: true }],

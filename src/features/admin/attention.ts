@@ -11,6 +11,7 @@ export type AttentionCounts = {
   toConfirm: number | null;
   toShip: number | null;
   lowStock: number | null;
+  uncategorised: number | null;
   questions: number | null;
   reports: number | null;
   support: number | null;
@@ -37,13 +38,14 @@ export const getAttentionCounts = cache(async (profile: Profile): Promise<Attent
   const can = (p: Parameters<typeof profileHasPermission>[1]) => profileHasPermission(profile, p);
   const count = async (q: PromiseLike<{ count: number | null }>) => (await q).count ?? 0;
 
-  const [toConfirm, toShip, lowStock, questions, reports, support] = await Promise.all([
+  const [toConfirm, toShip, lowStock, uncategorised, questions, reports, support] = await Promise.all([
     can("orders") ? count(supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "pending")) : null,
     can("orders") ? count(supabase.from("orders").select("id", { count: "exact", head: true }).in("status", [...TO_SHIP_STATUSES])) : null,
     can("products") ? lowStockProductIds().then((ids) => ids.length) : null,
+    can("products") ? count(supabase.from("products").select("id", { count: "exact", head: true }).is("category_id", null).neq("status", "archived")) : null,
     can("support") ? count(supabase.from("product_questions").select("id", { count: "exact", head: true }).eq("status", "pending")) : null,
     can("support") ? count(supabase.from("content_reports").select("id", { count: "exact", head: true }).eq("status", "open")) : null,
     can("support") ? count(supabase.from("support_messages").select("id", { count: "exact", head: true }).eq("status", "new")) : null,
   ]);
-  return { toConfirm, toShip, lowStock, questions, reports, support };
+  return { toConfirm, toShip, lowStock, uncategorised, questions, reports, support };
 });

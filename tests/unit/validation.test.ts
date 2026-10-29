@@ -44,6 +44,7 @@ describe("product validation", () => {
   const base = {
     name: "Arc 75",
     slug: "arc-75",
+    categoryId: "6f1c2d3e-4b5a-4c6d-8e7f-9a0b1c2d3e4f",
     price: 1000,
     status: "active",
     lowStockThreshold: 5,
@@ -76,6 +77,7 @@ describe("product validation", () => {
 
   it("rejects bad slugs and more than two decimals", () => {
     expect(productSchema.safeParse({ ...base, slug: "Arc 75!" }).success).toBe(false);
+    expect(productSchema.safeParse({ ...base, categoryId: "" }).success).toBe(false);
     expect(productSchema.safeParse({ ...base, price: 10.123 }).success).toBe(false);
   });
 });

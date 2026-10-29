@@ -178,7 +178,7 @@ export const productSchema = z
   .object({
     name: trimmed(1, 160, "Name"),
     slug: slugSchema,
-    categoryId: z.uuid().optional().or(z.literal("").transform(() => undefined)),
+    categoryId: z.uuid({ message: "Choose a category so the product shows in that section of the shop." }),
     shortDescription: optionalText(300),
     description: optionalText(10000),
     specifications: z.array(specificationSchema).max(40).default([]),

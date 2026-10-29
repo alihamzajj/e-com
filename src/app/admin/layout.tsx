@@ -24,7 +24,7 @@ async function AdminChrome({ children }: { children: React.ReactNode }) {
       items={navFor(profile)}
       badges={{
         orders: sum(counts.toConfirm),
-        products: sum(counts.lowStock),
+        products: sum(counts.lowStock, counts.uncategorised),
         questions: sum(counts.questions, counts.reports),
         support: sum(counts.support),
       }}

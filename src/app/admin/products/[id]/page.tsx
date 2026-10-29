@@ -6,7 +6,7 @@ import { z } from "zod";
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getStoreSettings } from "@/features/settings/queries";
-import { ProductForm, type ProductFormValues } from "@/components/admin/product-form";
+import { ProductForm, type CategoryOption, type ProductFormValues } from "@/components/admin/product-form";
 import { ImageManager } from "@/components/admin/image-manager";
 import { StockAdjustDialog } from "@/components/admin/stock-adjust";
 import { ConfirmButton } from "@/components/admin/confirm-button";
@@ -44,7 +44,7 @@ async function EditProduct({ params }: { params: PageProps<"/admin/products/[id]
       .select("*, product_variants(*), product_images(id, url, alt, position, created_at)")
       .eq("id", id)
       .maybeSingle(),
-    supabase.from("categories").select("id, name").order("sort_order").order("name"),
+    supabase.from("categories").select("id, name, parent_id").order("sort_order").order("name"),
   ]);
   if (!data) notFound();
   const p = data as unknown as Product;
@@ -115,7 +115,7 @@ async function EditProduct({ params }: { params: PageProps<"/admin/products/[id]
         }
       />
 
-      <ProductForm productId={p.id} initial={initial} categories={(categories ?? []) as { id: string; name: string }[]} currency={settings.currency} />
+      <ProductForm productId={p.id} initial={initial} categories={(categories ?? []) as CategoryOption[]} currency={settings.currency} />
 
       <SectionCard title="Images" description="Use the arrows to reorder. The first image is the main image.">
         <ImageManager productId={p.id} images={images} />

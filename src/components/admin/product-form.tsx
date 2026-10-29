@@ -117,10 +117,27 @@ function formPath(path: PropertyKey[]): string {
   return path.map(String).join(".");
 }
 
+export type CategoryOption = { id: string; name: string; parent_id: string | null };
+
+/** Top-level categories followed by their subcategories, e.g. "Shoes › Sneakers". */
+function categoryOptions(categories: CategoryOption[]) {
+  const ids = new Set(categories.map((c) => c.id));
+  const out: { id: string; label: string }[] = [];
+  const walk = (parentId: string | null, prefix: string) => {
+    for (const c of categories.filter((x) => (x.parent_id && ids.has(x.parent_id) ? x.parent_id : null) === parentId)) {
+      const label = prefix ? `${prefix} › ${c.name}` : c.name;
+      out.push({ id: c.id, label });
+      walk(c.id, label);
+    }
+  };
+  walk(null, "");
+  return out;
+}
+
 type Props = {
   productId: string | null;
   initial: ProductFormValues;
-  categories: { id: string; name: string }[];
+  categories: CategoryOption[];
   currency: string;
 };
 
@@ -179,6 +196,20 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
       <div className="grid gap-5">
         <FormError message={formError} />
         <Card className="grid gap-4 p-5">
+          <Field
+            label="Category"
+            htmlFor="categoryId"
+            required
+            error={err("categoryId")}
+            hint="The section of the shop this product appears in, e.g. Shoes. Pick the most specific one."
+          >
+            <NativeSelect id="categoryId" aria-invalid={Boolean(err("categoryId"))} {...register("categoryId")}>
+              <option value="">Choose a category…</option>
+              {categoryOptions(categories).map((c) => (
+                <option key={c.id} value={c.id}>{c.label}</option>
+              ))}
+            </NativeSelect>
+          </Field>
           <Field label="Name" htmlFor="name" required error={err("name")}>
             <Input
               id="name"
@@ -344,14 +375,6 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
           <label className="flex items-center gap-2 text-sm">
             <Checkbox {...register("isFeatured")} /> Featured on the home page
           </label>
-          <Field label="Category" htmlFor="categoryId">
-            <NativeSelect id="categoryId" {...register("categoryId")}>
-              <option value="">No category</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </NativeSelect>
-          </Field>
         </Card>
         <Card className="grid gap-4 p-5">
           <Field label={`Price (${currency})`} htmlFor="price" required error={err("price")}>

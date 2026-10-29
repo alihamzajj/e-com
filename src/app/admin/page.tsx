@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import type * as React from "react";
-import { AlertTriangle, CheckCircle2, ExternalLink, Flag, LifeBuoy, MessageSquareText, PackageCheck, Plus, ShoppingBag, Truck } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ExternalLink, Flag, FolderTree, LifeBuoy, MessageSquareText, PackageCheck, Plus, ShoppingBag, Truck } from "lucide-react";
 import { requireStaff, profileHasPermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getStoreSettings } from "@/features/settings/queries";
@@ -29,6 +29,7 @@ async function NeedsAttention({ profile }: { profile: Profile }) {
     { key: "confirm", count: c.toConfirm, label: plural(c.toConfirm ?? 0, "new order to confirm", "new orders to confirm"), href: "/admin/orders?status=pending", icon: ShoppingBag, urgent: true },
     { key: "ship", count: c.toShip, label: plural(c.toShip ?? 0, "order to pack & ship", "orders to pack & ship"), href: "/admin/orders?status=to_ship", icon: Truck, urgent: true },
     { key: "stock", count: c.lowStock, label: plural(c.lowStock ?? 0, "product low or out of stock", "products low or out of stock"), href: "/admin/products?stock=low", icon: AlertTriangle },
+    { key: "uncategorised", count: c.uncategorised, label: plural(c.uncategorised ?? 0, "product with no category (hidden from shop sections)", "products with no category (hidden from shop sections)"), href: "/admin/products?category=none", icon: FolderTree },
     { key: "questions", count: c.questions, label: plural(c.questions ?? 0, "customer question to answer", "customer questions to answer"), href: "/admin/questions", icon: MessageSquareText },
     { key: "reports", count: c.reports, label: plural(c.reports ?? 0, "reported review or question", "reported reviews or questions"), href: "/admin/questions?tab=reports", icon: Flag },
     { key: "support", count: c.support, label: plural(c.support ?? 0, "new message", "new messages"), href: "/admin/support", icon: LifeBuoy },

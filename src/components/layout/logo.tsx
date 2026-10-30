@@ -21,7 +21,7 @@ export function Logo({ name, logoUrl, className, tone = "dark" }: Props) {
   return (
     <Link
       href="/"
-      className={cn("group inline-flex min-h-10 shrink-0 items-center gap-2 lg:gap-2.5", className)}
+      className={cn("group inline-flex min-h-10 shrink-0 items-center gap-2.5 lg:gap-3", className)}
       aria-label={`${name} home`}
     >
       {logoUrl ? (
@@ -32,16 +32,17 @@ export function Logo({ name, logoUrl, className, tone = "dark" }: Props) {
             aria-hidden
             viewBox="0 0 48 52"
             fill="none"
-            className="h-10 w-auto shrink-0 text-accent transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-rotate-6 lg:h-12"
+            className="h-[38px] w-auto shrink-0 text-accent transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-rotate-6 lg:h-[46px]"
           >
             <path d="M15 19v-6a9 9 0 0 1 18 0v6" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
             <rect x="3" y="16" width="42" height="34" rx="9" fill="currentColor" />
             <path d="M16 30.5q8 8 16 0" stroke="#fff" strokeWidth="4" strokeLinecap="round" />
           </svg>
-          <span aria-hidden className="flex flex-col leading-none">
+          {/* Grid sized to the first word; the second's letters spread to exactly that width. */}
+          <span aria-hidden className="grid leading-none">
             <span
               className={cn(
-                "font-[family-name:var(--font-display)] text-[22px] font-black tracking-[0.01em] whitespace-nowrap uppercase lg:text-[28px]",
+                "font-[family-name:var(--font-display)] text-[23px] leading-[0.82] font-black whitespace-nowrap uppercase lg:text-[29px]",
                 tone === "light" ? "text-white" : "text-ink",
               )}
               style={{ fontVariationSettings: '"wdth" 100' }}
@@ -49,8 +50,10 @@ export function Logo({ name, logoUrl, className, tone = "dark" }: Props) {
               {first}
             </span>
             {second ? (
-              <span className="mt-1 text-[10px] font-extrabold tracking-[0.42em] whitespace-nowrap text-accent uppercase lg:text-[12px]">
-                {second}
+              <span className="mt-[5px] flex w-0 min-w-full justify-between whitespace-pre text-[10px] leading-none font-extrabold text-accent uppercase lg:mt-1.5 lg:text-[12px]">
+                {[...second].map((ch, i) => (
+                  <span key={i}>{ch}</span>
+                ))}
               </span>
             ) : null}
           </span>

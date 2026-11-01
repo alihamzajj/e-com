@@ -237,7 +237,7 @@ function FilterForm({ basePath, state, categories, facets, lockCategory, currenc
 export function CatalogFilters(props: Props) {
   return (
     <aside aria-label="Filters" className="hidden w-60 shrink-0 lg:block">
-      <div className="sticky top-36">
+      <div className="sticky top-24">
         <FilterForm key={JSON.stringify(props.state)} {...props} />
       </div>
     </aside>

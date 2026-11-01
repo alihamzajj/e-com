@@ -9,7 +9,6 @@ import { getSessionUser } from "@/lib/auth/session";
 import { SearchDialog } from "./search-dialog";
 import { MobileNav } from "./mobile-nav";
 import { NavLinks } from "./nav-links";
-import { CategoryBar } from "./category-bar";
 import type { MegaCategory } from "./mega-panel";
 import { Logo } from "./logo";
 
@@ -33,8 +32,6 @@ export async function Header() {
     })),
   }));
   const nav = [{ href: "/contact", label: "Support" }];
-  // Every top-level category, in the order set in the admin.
-  const categoryLinks = tops.map((c) => ({ href: `/categories/${c.slug}`, label: c.name }));
 
   return (
     <header className="sticky top-0 z-40 border-b border-transparent bg-canvas/85 backdrop-blur-md supports-[backdrop-filter]:bg-canvas/70">
@@ -61,7 +58,6 @@ export async function Header() {
           </Link>
         </div>
       </div>
-      <CategoryBar items={categoryLinks} />
     </header>
   );
 }

@@ -9,6 +9,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { SearchDialog } from "./search-dialog";
 import { MobileNav } from "./mobile-nav";
 import { NavLinks } from "./nav-links";
+import { CategoryBar } from "./category-bar";
 import type { MegaCategory } from "./mega-panel";
 import { Logo } from "./logo";
 
@@ -31,17 +32,18 @@ export async function Header() {
       price: formatMoney(p.min_variant_price, settings.currency, settings.locale),
     })),
   }));
-  // Shortcuts to the newest lines, shown only once those categories exist.
-  const shortcuts = ["leather-jackets", "watches"]
-    .map((slug) => categories.find((c) => c.slug === slug))
-    .filter((c) => c !== undefined)
-    .map((c) => ({ href: `/categories/${c.slug}`, label: c.name }));
-  const nav = [...shortcuts, { href: "/contact", label: "Support" }];
+  const nav = [
+    { href: "/products", label: "All products" },
+    { href: "/products?sort=newest", label: "New arrivals" },
+    { href: "/contact", label: "Support" },
+  ];
+  // Every top-level category, in the order set in the admin.
+  const categoryLinks = tops.map((c) => ({ href: `/categories/${c.slug}`, label: c.name }));
 
   return (
     <header className="sticky top-0 z-40 border-b border-transparent bg-canvas/85 backdrop-blur-md supports-[backdrop-filter]:bg-canvas/70">
       <div className="container-page flex h-[68px] items-center gap-3 md:h-20">
-        <MobileNav categories={mega} links={[{ href: "/products", label: "Shop all" }, ...nav]} storeName={settings.storeName} />
+        <MobileNav categories={mega} links={nav} storeName={settings.storeName} />
         <Logo name={settings.storeName} logoUrl={settings.logoUrl} />
         <NavLinks links={nav} mega={mega} />
         <div className="ml-auto flex items-center gap-0.5 md:ml-0">
@@ -63,6 +65,7 @@ export async function Header() {
           </Link>
         </div>
       </div>
+      <CategoryBar items={categoryLinks} />
     </header>
   );
 }

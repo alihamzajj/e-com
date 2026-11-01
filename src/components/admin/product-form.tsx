@@ -10,6 +10,8 @@ import { Card } from "@/components/ui/primitives";
 import { Checkbox, Field, FormError, Input, NativeSelect, Textarea } from "@/components/ui/form-controls";
 import { productSchema } from "@/lib/validation/schemas";
 import { slugify } from "@/lib/utils/format";
+import { discountPercent } from "@/lib/pricing";
+import { Price } from "@/components/ui/price";
 import { saveProductAction } from "@/actions/admin/products";
 
 export type ProductFormValues = {
@@ -153,6 +155,7 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
   const optionNames = useFieldArray({ control, name: "optionNames" });
   const variants = useFieldArray({ control, name: "variants", keyName: "key" });
   const names = useWatch({ control, name: "optionNames" });
+  const [price, salePrice] = useWatch({ control, name: ["price", "salePrice"] });
 
   // After a save the server sends fresh values (new variant ids, normalised
   // fields). Reset only when they actually change so unrelated refreshes (e.g.
@@ -299,9 +302,9 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
                   ))}
                   <th className="pb-2 font-medium">Name</th>
                   <th className="pb-2 font-medium">Price ({currency})</th>
-                  <th className="pb-2 font-medium">Sale</th>
+                  <th className="pb-2 font-medium">Discounted</th>
                   <th className="pb-2 font-medium">Stock</th>
-                  <th className="pb-2 font-medium">On sale</th>
+                  <th className="pb-2 font-medium">Available</th>
                   <th />
                 </tr>
               </thead>
@@ -377,12 +380,18 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
           </label>
         </Card>
         <Card className="grid gap-4 p-5">
-          <Field label={`Price (${currency})`} htmlFor="price" required error={err("price")}>
+          <Field label={`Original price (${currency})`} htmlFor="price" required error={err("price")}>
             <Input id="price" inputMode="decimal" aria-invalid={Boolean(err("price"))} {...register("price")} />
           </Field>
-          <Field label="Sale price" htmlFor="salePrice" error={err("salePrice")} hint="Leave empty for no discount.">
+          <Field
+            label={`Discounted price (${currency})`}
+            htmlFor="salePrice"
+            error={err("salePrice")}
+            hint="Optional. Customers see this price, with the original price crossed out. Leave empty for no discount."
+          >
             <Input id="salePrice" inputMode="decimal" aria-invalid={Boolean(err("salePrice"))} {...register("salePrice")} />
           </Field>
+          <PricePreview price={price} salePrice={salePrice} currency={currency} />
           <Field label="Cost price" htmlFor="costPrice" error={err("costPrice")} hint="Private. Used for profit reports.">
             <Input id="costPrice" inputMode="decimal" {...register("costPrice")} />
           </Field>
@@ -401,5 +410,25 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
         </Button>
       </div>
     </form>
+  );
+}
+
+/** How the price will look on the store, e.g. "PKR 4,500  ~~PKR 6,000~~  −25%". */
+function PricePreview({ price, salePrice, currency }: { price: string; salePrice: string; currency: string }) {
+  const list = Number(price);
+  const sale = salePrice.trim() === "" ? null : Number(salePrice);
+  if (!price.trim() || !Number.isFinite(list) || list <= 0) return null;
+  const discounted = sale != null && Number.isFinite(sale) && sale > 0 && sale < list;
+  return (
+    <div className="grid gap-1.5 rounded-md bg-surface px-3 py-2.5 ring-1 ring-line-soft">
+      <p className="text-[11px] font-semibold tracking-[0.12em] text-muted uppercase">Customers will see</p>
+      <div className="flex flex-wrap items-center gap-2">
+        <Price amount={discounted ? sale : list} compareAt={discounted ? list : null} currency={currency} />
+        {discounted ? (
+          <span className="rounded-sm bg-accent px-1.5 py-0.5 text-[11px] font-bold text-accent-ink">−{discountPercent(sale, list)}%</span>
+        ) : null}
+      </div>
+      {sale != null && !discounted ? <p className="text-xs text-danger">The discounted price must be lower than the original price.</p> : null}
+    </div>
   );
 }

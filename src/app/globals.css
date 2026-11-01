@@ -548,3 +548,39 @@
     animation: none !important;
   }
 }
+
+/* Spotlight hero: progress line under the active category tab. */
+@keyframes spot-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.spot-progress {
+  animation: spot-progress linear forwards;
+}
+
+/*
+   Fan hero. Cards sit in a fanned hand around the centre (--o is each card's
+   offset from the middle, e.g. -2…2, and --a its size) and spread wider when the hand is hovered;
+   the hovered card rises above the rest.
+*/
+.fan-card {
+  transform: translateX(calc(-50% + var(--o) * 34%)) translateY(calc(var(--a) * 12px)) rotate(calc(var(--o) * 7deg));
+  transform-origin: 50% 120%;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.fan:hover .fan-card,
+.fan:focus-within .fan-card {
+  transform: translateX(calc(-50% + var(--o) * 50%)) translateY(calc(var(--a) * 18px)) rotate(calc(var(--o) * 9deg));
+}
+.fan .fan-card:hover,
+.fan .fan-card:focus-visible {
+  z-index: 20 !important;
+  transform: translateX(calc(-50% + var(--o) * 50%)) translateY(-18px) rotate(calc(var(--o) * 4deg));
+}
+@media (prefers-reduced-motion: reduce) {
+  .fan-card,
+  .spot-progress {
+    transition: none;
+    animation: none;
+  }
+}

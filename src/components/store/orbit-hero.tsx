@@ -5,7 +5,7 @@ import { OrbitStage } from "./orbit-stage";
 
 export type OrbitItem = { slug: string; name: string; eyebrow: string; href: string; image: string | null; label: string };
 
-type Props = {
+export type HeroProps = {
   title: string;
   subtitle?: string;
   ctaLabel: string;
@@ -13,7 +13,7 @@ type Props = {
 };
 
 /** Splits the title into lines: earlier sentences in two halves, the last sentence on its own line in the accent. */
-function titleLines(title: string): { text: string; accent: boolean }[] {
+export function titleLines(title: string): { text: string; accent: boolean }[] {
   const sentences = title.trim().match(/[^.!?]+[.!?]*/g)?.map((s) => s.trim()).filter(Boolean) ?? [title];
   if (sentences.length < 2) return [{ text: title, accent: false }];
   const last = sentences.pop()!;
@@ -31,19 +31,12 @@ const ORBIT_ART: Record<string, string> = Object.fromEntries(
   ["clothing", "leather-goods", "shoes", "watches", "mobile-accessories", "accessories"].map((slug) => [slug, `/demo/fashion/orbit/${slug}.webp`]),
 );
 
-/**
- * Homepage "Orbit Ring" hero: copy on the left, and on the right one item per
- * main category travelling clockwise round a dashed ring. Each shows the
- * an illustration (ORBIT_ART), or the category's picture from Admin → Categories,
- * and opens that category's page.
- * The motion is pure CSS (globals.css, "Orbit Ring hero"); OrbitStage only adds
- * the per-count timing and pausing when off screen, hidden or tapped.
- */
-export async function OrbitHero({ title, subtitle, ctaLabel, ctaHref }: Props) {
+/** One entry per main category that has products, with its picture and product count. */
+export async function getHeroItems(): Promise<OrbitItem[]> {
   const categories = (await getCategories()).filter((c) => !c.parent_id);
   // One best seller per category gives the product count (and a picture if the category has none).
   const previews = await Promise.all(categories.map((c) => getCategoryPreview(c.slug, 1)));
-  const items: OrbitItem[] = categories.flatMap((c, i) => {
+  return categories.flatMap((c, i) => {
     const top = previews[i][0];
     if (!top) return []; // skip empty categories
     const count = top.total_count;
@@ -58,6 +51,18 @@ export async function OrbitHero({ title, subtitle, ctaLabel, ctaHref }: Props) {
       },
     ];
   });
+}
+
+/**
+ * Homepage "Orbit Ring" hero: copy on the left, and on the right one item per
+ * main category travelling clockwise round a dashed ring. Each shows an
+ * illustration (ORBIT_ART), or the category's picture from Admin → Categories,
+ * and opens that category's page.
+ * The motion is pure CSS (globals.css, "Orbit Ring hero"); OrbitStage only adds
+ * the per-count timing and pausing when off screen, hidden or tapped.
+ */
+export async function OrbitHero({ title, subtitle, ctaLabel, ctaHref }: HeroProps) {
+  const items = await getHeroItems();
   const lines = titleLines(title);
 
   return (

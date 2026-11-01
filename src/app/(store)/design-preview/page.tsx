@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { getStoreSettings } from "@/features/settings/queries";
 import { OrbitHero, getHeroItems, titleLines } from "@/components/store/orbit-hero";
-import { SpotlightHero } from "@/components/store/hero-designs/spotlight-hero";
-import { BentoHero } from "@/components/store/hero-designs/bento-hero";
-import { FanHero } from "@/components/store/hero-designs/fan-hero";
+import { DialHero } from "@/components/store/hero-designs/dial-hero";
+import { BubblesHero } from "@/components/store/hero-designs/bubbles-hero";
+import { BloomHero } from "@/components/store/hero-designs/bloom-hero";
 
 export const metadata: Metadata = { title: "Home page designs", robots: { index: false, follow: false } };
 
@@ -20,9 +20,9 @@ export default async function DesignPreviewPage() {
   const shared = { ...props, lines: titleLines(props.title), items };
 
   const designs = [
-    { n: 1, name: "Spotlight", note: "One category at a time, big. Changes every 4 seconds; tabs jump to a category.", hero: <SpotlightHero {...shared} /> },
-    { n: 2, name: "Bento", note: "Dark headline card beside a grid of category tiles. Everything visible at once.", hero: <BentoHero {...shared} /> },
-    { n: 3, name: "Orange stage", note: "Bold orange banner with a fanned hand of cards. Hover the cards to spread them.", hero: <FanHero {...shared} /> },
+    { n: 1, name: "Dial", note: "A wheel of circles turning round a big orange disc on the right. The front circle grows and its name shows.", hero: <DialHero {...shared} /> },
+    { n: 2, name: "Bubbles", note: "Headline in the middle, circles of different sizes floating around it. Hover a circle for its name.", hero: <BubblesHero {...shared} /> },
+    { n: 3, name: "Bloom", note: "Circles arranged like petals round an orange \"Shop all\" centre, lighting up one after another.", hero: <BloomHero {...shared} /> },
     { n: 0, name: "Current (Orbit Ring)", note: "What the home page uses today, for comparison.", hero: <OrbitHero {...props} /> },
   ];
 

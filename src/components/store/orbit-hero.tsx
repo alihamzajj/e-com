@@ -26,10 +26,16 @@ function titleLines(title: string): { text: string; accent: boolean }[] {
   return [...lines.map((text) => ({ text, accent: false })), { text: last, accent: true }];
 }
 
+/** Illustrations for the ring, which suit it better than photos; other categories use their own picture. */
+const ORBIT_ART: Record<string, string> = Object.fromEntries(
+  ["clothing", "leather-goods", "shoes", "watches", "mobile-accessories", "accessories"].map((slug) => [slug, `/demo/fashion/orbit/${slug}.webp`]),
+);
+
 /**
  * Homepage "Orbit Ring" hero: copy on the left, and on the right one item per
  * main category travelling clockwise round a dashed ring. Each shows the
- * category's picture (set in Admin → Categories) and opens that category's page.
+ * an illustration (ORBIT_ART), or the category's picture from Admin → Categories,
+ * and opens that category's page.
  * The motion is pure CSS (globals.css, "Orbit Ring hero"); OrbitStage only adds
  * the per-count timing and pausing when off screen, hidden or tapped.
  */
@@ -47,7 +53,7 @@ export async function OrbitHero({ title, subtitle, ctaLabel, ctaHref }: Props) {
         name: c.name,
         eyebrow: `${count} ${count === 1 ? "product" : "products"}`,
         href: `/categories/${c.slug}`,
-        image: c.image_url ?? top.image_url,
+        image: ORBIT_ART[c.slug] ?? c.image_url ?? top.image_url,
         label: `Shop ${c.name}, ${count} ${count === 1 ? "product" : "products"}`,
       },
     ];

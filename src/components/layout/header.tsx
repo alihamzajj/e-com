@@ -32,18 +32,14 @@ export async function Header() {
       price: formatMoney(p.min_variant_price, settings.currency, settings.locale),
     })),
   }));
-  const nav = [
-    { href: "/products", label: "All products" },
-    { href: "/products?sort=newest", label: "New arrivals" },
-    { href: "/contact", label: "Support" },
-  ];
+  const nav = [{ href: "/contact", label: "Support" }];
   // Every top-level category, in the order set in the admin.
   const categoryLinks = tops.map((c) => ({ href: `/categories/${c.slug}`, label: c.name }));
 
   return (
     <header className="sticky top-0 z-40 border-b border-transparent bg-canvas/85 backdrop-blur-md supports-[backdrop-filter]:bg-canvas/70">
       <div className="container-page flex h-[68px] items-center gap-3 md:h-20">
-        <MobileNav categories={mega} links={nav} storeName={settings.storeName} />
+        <MobileNav categories={mega} links={[{ href: "/products", label: "Shop all" }, ...nav]} storeName={settings.storeName} />
         <Logo name={settings.storeName} logoUrl={settings.logoUrl} />
         <NavLinks links={nav} mega={mega} />
         <div className="ml-auto flex items-center gap-0.5 md:ml-0">

@@ -25,6 +25,10 @@
    and redirect URLs (see SETUP.md §3).
 4. Deploy. `vercel.json` registers the daily cron that cancels online orders left
    unpaid (`/api/cron/expire-orders`).
+5. `vercel.json` also pins server functions to `icn1` (Seoul), the region of the
+   Supabase project. Every page and cart update talks to the database several
+   times, so keep the two in the same region — if the database moves, change
+   `regions` to match (Vercel region codes: <https://vercel.com/docs/regions>).
 
 > `SUPABASE_SECRET_KEY`, `STRIPE_*`, `RESEND_API_KEY` and `CRON_SECRET` are only
 > read in server code (`src/lib/config/server.ts` imports `server-only`, so

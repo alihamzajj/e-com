@@ -8,6 +8,7 @@ import { getStoreSettings } from "@/features/settings/queries";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/primitives";
 import { formatMoney } from "@/lib/utils/format";
+import { isEmailConfigured } from "@/lib/email/send";
 
 export const metadata: Metadata = { title: "Order received", robots: { index: false } };
 
@@ -52,6 +53,8 @@ async function Result({ searchParams }: { searchParams: PageProps<"/checkout/suc
 
   const awaitingPayment = order.payment_method === "online" && ["pending", "failed"].includes(order.payment_status) && order.status === "pending";
   const cancelled = order.status === "cancelled";
+  // Only promise an email when the store can actually send one (RESEND_API_KEY + EMAIL_FROM).
+  const emailNote = isEmailConfigured() ? ` A confirmation is on its way to ${order.email}.` : " You can follow it any time under Account → Orders.";
   const Icon = cancelled ? XCircle : awaitingPayment ? Clock : CheckCircle2;
 
   return (
@@ -71,8 +74,8 @@ async function Result({ searchParams }: { searchParams: PageProps<"/checkout/suc
           : awaitingPayment
             ? "We're waiting for the payment provider to confirm your payment. This usually takes a few seconds — refresh this page or check your order later."
             : order.payment_method === "cod"
-              ? `We've received your order and sent a confirmation to ${order.email}. Please keep the exact amount ready for the courier.`
-              : `Your payment was confirmed and a receipt was sent to ${order.email}.`}
+              ? `We've received your order.${emailNote} Please keep the exact amount ready for the courier.`
+              : `Your payment was confirmed.${emailNote}`}
       </p>
       <div className="flex flex-wrap justify-center gap-3">
         {awaitingPayment ? (

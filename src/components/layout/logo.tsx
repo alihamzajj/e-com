@@ -28,7 +28,7 @@ export function Logo({ name, logoUrl, className, tone = "dark" }: Props) {
         "group inline-flex min-h-10 shrink-0 items-center gap-[calc(var(--logo)*0.16)] [--logo:36px] md:[--logo:42px] lg:[--logo:46px]",
         className,
       )}
-      aria-label={`${name} home`}
+      aria-label={logoUrl ? `${name} home` : undefined}
     >
       {logoUrl ? (
         <Image src={logoUrl} alt={name} width={200} height={48} unoptimized={!logoUrl.startsWith("/")} className="h-9 w-auto md:h-11" />
@@ -43,7 +43,7 @@ export function Logo({ name, logoUrl, className, tone = "dark" }: Props) {
             <rect x="6" y="34" width="108" height="96" rx="36" fill="#FF5A1F" />
             <path d="M78.7 67.3A26.5 26.5 0 1 0 86.5 86H63" fill="none" stroke="#fff" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          <span aria-hidden className="inline-flex flex-col items-end">
+          <span className="inline-flex flex-col items-end">
             <span
               className={cn(
                 "font-[family-name:var(--font-logo)] text-[length:var(--logo)] leading-[0.74] font-extrabold tracking-[-0.055em] whitespace-nowrap lowercase",
@@ -52,6 +52,7 @@ export function Logo({ name, logoUrl, className, tone = "dark" }: Props) {
             >
               {first}
             </span>
+            {second ? <span className="sr-only"> </span> : null}
             {second ? (
               <span className="-mr-[0.3em] mt-[calc(var(--logo)*-0.013)] text-[length:max(13px,calc(var(--logo)*0.32))] leading-none font-extrabold tracking-[0.3em] whitespace-nowrap text-[#FF5A1F] uppercase">
                 {second}

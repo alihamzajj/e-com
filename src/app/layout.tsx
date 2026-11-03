@@ -21,7 +21,8 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(publicEnv.siteUrl),
     title: { default: `${settings.storeName} — ${settings.tagline || "Online store"}`, template: `%s · ${settings.storeName}` },
     description: settings.tagline || `Shop ${settings.storeName} online.`,
-    openGraph: { siteName: settings.storeName, type: "website" },
+    openGraph: { siteName: settings.storeName, type: "website", locale: "en_PK" },
+    twitter: { card: "summary_large_image" },
   };
 }
 

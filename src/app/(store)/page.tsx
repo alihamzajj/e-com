@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Quote, Sparkles } from "lucide-react";
 import { getStoreSettings } from "@/features/settings/queries";
@@ -13,7 +14,49 @@ import { defaultOrbitProducts, ProductOrbitHero } from "@/components/store/produ
 import { SectionHeading } from "@/components/store/section-heading";
 import { SplitWords } from "@/components/motion/split-words";
 import { formatMoney } from "@/lib/utils/format";
+import { publicEnv } from "@/lib/config/public";
 import type { CatalogProduct, StoreSettings } from "@/types/domain";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getStoreSettings();
+  const description =
+    settings.hero.subtitle ||
+    "Shop leather jackets, belts, shoes, watches, wallets and mobile accessories online, with cash on delivery across Pakistan.";
+  return { description, alternates: { canonical: "/" }, openGraph: { description, url: "/", images: [{ url: "/opengraph-image", width: 1200, height: 630 }] } };
+}
+
+/** Tells search engines who the shop is and how to search it. */
+function StoreJsonLd({ settings }: { settings: StoreSettings }) {
+  const url = publicEnv.siteUrl;
+  const sameAs = Object.values(settings.socialLinks ?? {}).filter((v) => /^https?:\/\//.test(v));
+  const data = [
+    {
+      "@context": "https://schema.org",
+      "@type": "OnlineStore",
+      name: settings.storeName,
+      url,
+      logo: `${url}/icon.svg`,
+      ...(settings.contactEmail ? { email: settings.contactEmail } : {}),
+      ...(settings.contactPhone ? { telephone: settings.contactPhone } : {}),
+      ...(settings.contactAddress ? { address: settings.contactAddress } : {}),
+      ...(sameAs.length ? { sameAs } : {}),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: settings.storeName,
+      url,
+      potentialAction: { "@type": "SearchAction", target: `${url}/search?q={search_term_string}`, "query-input": "required name=search_term_string" },
+    },
+  ];
+  return (
+    <script
+      type="application/ld+json"
+      // JSON.stringify output with "<" escaped cannot break out of the script tag.
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, "\\u003c") }}
+    />
+  );
+}
 
 export default async function HomePage() {
   const [settings, categories, featured, newest, popular, reviews] = await Promise.all([
@@ -40,6 +83,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <StoreJsonLd settings={settings} />
       {/* Product orbit; the category orbit only while the shop has fewer than three products. */}
       {orbitProducts.length >= ORBIT_MIN ? (
         <ProductOrbitHero {...heroProps} products={orbitProducts} settings={settings} />

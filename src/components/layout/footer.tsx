@@ -84,7 +84,7 @@ function FooterColumn({ title, links }: { title: string; links: { href: string; 
   if (links.length === 0) return <div />;
   return (
     <div>
-      <p className="mb-4 text-xs font-semibold tracking-[0.14em] text-white/40 uppercase">{title}</p>
+      <p className="mb-4 text-xs font-semibold tracking-[0.14em] text-white/60 uppercase">{title}</p>
       <ul className="text-sm">
         {links.map((l) => (
           <li key={l.href}>

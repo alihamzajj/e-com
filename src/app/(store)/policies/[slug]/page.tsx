@@ -17,7 +17,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata(props: PageProps<"/policies/[slug]">): Promise<Metadata> {
   const { slug } = await props.params;
-  return { title: TITLES[slug] ?? "Policy" };
+  return { title: TITLES[slug] ?? "Policy", alternates: { canonical: `/policies/${slug}` } };
 }
 
 export default function PolicyPage(props: PageProps<"/policies/[slug]">) {

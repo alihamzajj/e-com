@@ -6,7 +6,11 @@ import { getProfile, getSessionUser } from "@/lib/auth/session";
 import { ContactForm } from "@/components/store/contact-form";
 import { Card } from "@/components/ui/primitives";
 
-export const metadata: Metadata = { title: "Contact us", description: "Questions about an order or a product? Send us a message." };
+export const metadata: Metadata = {
+  title: "Contact us",
+  description: "Questions about an order or a product? Send us a message.",
+  alternates: { canonical: "/contact" },
+};
 
 export default async function ContactPage(props: PageProps<"/contact">) {
   const settings = await getStoreSettings();

@@ -548,3 +548,157 @@
     animation: none !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Product orbit hero (Admin → Homepage). The outer ring turns clockwise once a
+   minute and the inner one the other way every 40 s; each bubble counter-turns
+   so its photo stays upright. Hovering the stage pauses both rings.
+   --------------------------------------------------------------------------- */
+@keyframes porb-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes porb-swap {
+  from { opacity: 0; transform: scale(0.82); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@layer components {
+  .porb {
+    position: relative;
+    aspect-ratio: 1;
+  }
+  .porb-guide {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    aspect-ratio: 1;
+    border: 1.5px dashed var(--color-line);
+    border-radius: 9999px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .porb-ring {
+    position: absolute;
+    inset: 0;
+    animation: porb-spin 60s linear infinite;
+  }
+  .porb-ring-inner {
+    animation-duration: 40s;
+    animation-direction: reverse;
+  }
+  .porb-slot {
+    position: absolute;
+    width: 17%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+  }
+  .porb-slot-inner {
+    width: 13%;
+  }
+  .porb-bubble {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 4px;
+    border-radius: 9999px;
+    background: var(--color-card);
+    box-shadow: 0 10px 28px rgb(26 18 13 / 0.14), 0 2px 6px rgb(26 18 13 / 0.06);
+    cursor: pointer;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  .porb-bubble:hover {
+    transform: scale(1.06);
+  }
+  .porb-bubble:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .porb-bubble[data-active] {
+    box-shadow: 0 0 0 4px var(--accent), 0 10px 28px rgb(255 90 31 / 0.3);
+  }
+  .porb-upright {
+    display: block;
+    width: 100%;
+    height: 100%;
+    animation: porb-spin 60s linear infinite reverse;
+  }
+  .porb-ring-inner .porb-upright {
+    animation-duration: 40s;
+    animation-direction: normal;
+  }
+  .porb:hover .porb-ring,
+  .porb:hover .porb-upright {
+    animation-play-state: paused;
+  }
+  .porb-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    width: 36%;
+    aspect-ratio: 1;
+    place-items: center;
+    border-radius: 9999px;
+    background: var(--accent);
+    color: #fff;
+    text-align: center;
+    box-shadow: 0 24px 60px rgb(255 90 31 / 0.42);
+    transform: translate(-50%, -50%);
+    container-type: inline-size;
+  }
+  /* One line, as large as fits: narrower for longer names (--len = character count). */
+  .porb-cat {
+    max-width: 100%;
+    font-size: min(15cqi, calc(118cqi / var(--len)));
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .porb-core::before {
+    content: "";
+    position: absolute;
+    inset: -9%;
+    z-index: -1;
+    border: 2px solid rgb(255 90 31 / 0.22);
+    border-radius: 9999px;
+    background: rgb(255 90 31 / 0.06);
+  }
+  .porb-core-inner {
+    display: flex;
+    width: 82%;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 9999px;
+    animation: porb-swap 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .porb-tag {
+    position: absolute;
+    bottom: 9%;
+    left: 0;
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 18px;
+    border-radius: 14px;
+    background: var(--color-ink);
+    color: #fff;
+    box-shadow: var(--shadow-pop);
+    transform: rotate(-4deg);
+    pointer-events: none;
+  }
+  @media (min-width: 900px) {
+    .porb-tag {
+      display: flex;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .porb-ring,
+  .porb-upright,
+  .porb-core-inner {
+    animation: none !important;
+  }
+  .porb-bubble:hover {
+    transform: none;
+  }
+}

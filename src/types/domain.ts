@@ -24,6 +24,8 @@ export type HeroContent = {
   cta_label?: string;
   cta_href?: string;
   image_url?: string;
+  /** Products shown in the home page orbit, in order (Admin → Homepage). */
+  product_ids?: string[];
 };
 
 export type PromoContent = HeroContent & { eyebrow?: string; body?: string };

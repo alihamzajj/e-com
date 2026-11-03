@@ -12,6 +12,7 @@ export type NavKey =
   | "coupons"
   | "reports"
   | "settings"
+  | "homepage"
   | "staff";
 
 export type NavGroup = "" | "Sell" | "Catalogue" | "Customer care" | "Store";
@@ -28,6 +29,7 @@ const ITEMS: (NavItem & { permission: Permission | "admin" | null })[] = [
   { key: "categories", href: "/admin/categories", label: "Categories", group: "Catalogue", permission: "products" },
   { key: "questions", href: "/admin/questions", label: "Q&A & reviews", group: "Customer care", permission: "support" },
   { key: "support", href: "/admin/support", label: "Messages", group: "Customer care", permission: "support" },
+  { key: "homepage", href: "/admin/homepage", label: "Homepage", group: "Store", permission: "settings" },
   { key: "settings", href: "/admin/settings", label: "Settings", group: "Store", permission: "settings" },
   { key: "staff", href: "/admin/staff", label: "Staff", group: "Store", permission: "admin" },
 ];

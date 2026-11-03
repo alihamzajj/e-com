@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { ArrowRight, Quote, Sparkles } from "lucide-react";
 import { getStoreSettings } from "@/features/settings/queries";
-import { getCategories, getProductRail, getRecentReviews } from "@/features/catalog/queries";
+import { getCategories, getProductRail, getProductsByIds, getRecentReviews } from "@/features/catalog/queries";
+import { ORBIT_MIN } from "@/features/catalog/home-orbit";
 import { ProductGrid } from "@/components/products/product-card";
 import { ProductImage } from "@/components/products/product-image";
 import { Button } from "@/components/ui/button";
 import { RatingStars } from "@/components/ui/rating";
 import { NewsletterForm } from "@/components/store/newsletter-form";
 import { OrbitHero } from "@/components/store/orbit-hero";
+import { ProductOrbitHero } from "@/components/store/product-orbit-hero";
 import { SectionHeading } from "@/components/store/section-heading";
 import { SplitWords } from "@/components/motion/split-words";
 import { formatMoney } from "@/lib/utils/format";
@@ -23,18 +25,25 @@ export default async function HomePage() {
     getRecentReviews(3),
   ]);
   const hero = settings.hero;
+  const orbitProducts = await getProductsByIds(hero.product_ids ?? []);
+  const heroProps = {
+    title: hero.title || settings.storeName,
+    subtitle: hero.subtitle || settings.tagline || undefined,
+    ctaLabel: hero.cta_label || "Shop collection",
+    ctaHref: hero.cta_href || "/products",
+  };
   const promo = settings.promo;
   const money = { currency: settings.currency, locale: settings.locale };
   const hasCatalog = featured.length + newest.length + popular.length > 0;
 
   return (
     <>
-      <OrbitHero
-        title={hero.title || settings.storeName}
-        subtitle={hero.subtitle || settings.tagline || undefined}
-        ctaLabel={hero.cta_label || "Shop collection"}
-        ctaHref={hero.cta_href || "/products"}
-      />
+      {/* The owner's picked products (Admin → Homepage); until there are enough, the category orbit. */}
+      {orbitProducts.length >= ORBIT_MIN ? (
+        <ProductOrbitHero {...heroProps} products={orbitProducts} settings={settings} />
+      ) : (
+        <OrbitHero {...heroProps} />
+      )}
 
       <Ticker settings={settings} categories={categories.map((c) => c.name)} />
 

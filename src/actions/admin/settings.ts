@@ -26,6 +26,9 @@ export async function saveSettingsAction(input: unknown): Promise<ActionResult> 
     return { ok: false, error: "Enable at least one payment method, or customers cannot check out." };
   }
   const supabase = await createClient();
+  // The orbit products are edited on Admin → Homepage; keep them when saving here.
+  const { data: current } = await supabase.from("store_settings").select("hero").eq("id", 1).maybeSingle();
+  const productIds = (current?.hero as { product_ids?: string[] } | null)?.product_ids;
   const { error } = await supabase
     .from("store_settings")
     .update({
@@ -44,7 +47,7 @@ export async function saveSettingsAction(input: unknown): Promise<ActionResult> 
       online_payments_enabled: s.onlinePaymentsEnabled,
       newsletter_enabled: s.newsletterEnabled,
       low_stock_alert_email: s.lowStockAlertEmail || null,
-      hero: clean(s.hero),
+      hero: { ...clean(s.hero), ...(productIds ? { product_ids: productIds } : {}) },
       promo: clean(s.promo),
       policies: clean(s.policies),
     })

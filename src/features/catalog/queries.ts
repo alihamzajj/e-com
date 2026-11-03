@@ -196,6 +196,21 @@ export async function getProductRail(kind: "featured" | "newest" | "popular", li
   });
 }
 
+/**
+ * Published products in the order given (unknown, draft or archived ids are
+ * skipped). Reads the whole catalog once, which suits a store of a few hundred
+ * products; the result is cached like the other rails.
+ */
+export async function getProductsByIds(ids: string[]): Promise<CatalogProduct[]> {
+  "use cache";
+  cacheTag("products");
+  cacheLife("minutes");
+  if (ids.length === 0) return [];
+  const all = await runCatalogSearch({ sort: "newest", limit: 1000, offset: 0 });
+  const byId = new Map(all.map((p) => [p.id, p]));
+  return ids.flatMap((id) => byId.get(id) ?? []);
+}
+
 /** Best sellers in a category and its subcategories, for the menu's product previews. */
 export async function getCategoryPreview(categorySlug: string, limit = 3): Promise<CatalogProduct[]> {
   "use cache";

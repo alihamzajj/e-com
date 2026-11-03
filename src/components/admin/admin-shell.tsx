@@ -7,6 +7,7 @@ import {
   BarChart3,
   ExternalLink,
   FolderTree,
+  House,
   LayoutDashboard,
   LifeBuoy,
   LogOut,
@@ -44,6 +45,7 @@ const ICONS: Record<NavKey, React.ComponentType<{ className?: string }>> = {
   coupons: TicketPercent,
   reports: BarChart3,
   settings: Settings,
+  homepage: House,
   staff: ShieldCheck,
 };
 

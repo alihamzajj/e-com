@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Printer } from "lucide-react";
 import { z } from "zod";
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -10,6 +10,7 @@ import { getPaymentProvider } from "@/lib/payments";
 import { allowedNextStatuses } from "@/features/admin/orders";
 import { FormSkeleton, OrderStatusBadge, PaymentStatusBadge, SectionCard } from "@/components/admin/common";
 import { OrderActions, OrderNoteForm } from "@/components/admin/order-actions";
+import { Button } from "@/components/ui/button";
 import { Badge, PageHeading } from "@/components/ui/primitives";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
 import { formatDateTime, formatMoney, ORDER_STATUS_LABELS, toNumber } from "@/lib/utils/format";
@@ -56,9 +57,27 @@ async function OrderDetail({ params }: { params: PageProps<"/admin/orders/[id]">
           <>
             <PaymentStatusBadge status={o.payment_status} />
             <OrderStatusBadge status={o.status} />
+            {o.status !== "cancelled" ? (
+              <Button asChild variant="outline" size="sm">
+                <Link href={`/admin/orders/${o.id}/label`}><Printer /> Shipping label</Link>
+              </Button>
+            ) : null}
           </>
         }
       />
+
+      {/* Once the order is confirmed it is time to pack: put the label right in front. */}
+      {o.status === "confirmed" || o.status === "processing" ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-accent/30 bg-accent-soft px-5 py-4">
+          <div>
+            <p className="text-sm font-semibold text-ink">Ready to pack</p>
+            <p className="text-xs text-ink-soft">Print the shipping label and stick it on the box, then mark the order as shipped.</p>
+          </div>
+          <Button asChild>
+            <Link href={`/admin/orders/${o.id}/label`}><Printer /> Print shipping label</Link>
+          </Button>
+        </div>
+      ) : null}
 
       <SectionCard title="Actions">
         <OrderActions

@@ -12,47 +12,48 @@ type Props = {
 
 /**
  * Store wordmark. With an uploaded logo it shows the image; otherwise it draws the
- * brand mark: an orange shopping bag carrying the store's initial, the first word
- * of the name large in heavy ink and the rest small underneath in accent capitals.
+ * brand mark: an orange bag whose white "G" makes the monogram, then the first
+ * word of the name in lowercase Poppins and the rest in small spaced-out orange
+ * capitals, right-aligned underneath. Everything scales from --logo, the size of
+ * the first word; the rest never shrinks below 13px so it stays readable.
  */
 export function Logo({ name, logoUrl, className, tone = "dark" }: Props) {
   const [first, ...rest] = name.trim().split(/\s+/);
   const second = rest.join(" ");
+  const light = tone === "light";
   return (
     <Link
       href="/"
-      className={cn("group inline-flex min-h-10 shrink-0 items-center gap-2.5 lg:gap-3.5", className)}
+      className={cn(
+        "group inline-flex min-h-10 shrink-0 items-center gap-[calc(var(--logo)*0.16)] [--logo:42px] md:[--logo:54px] lg:[--logo:64px]",
+        className,
+      )}
       aria-label={`${name} home`}
     >
       {logoUrl ? (
         <Image src={logoUrl} alt={name} width={200} height={48} unoptimized={!logoUrl.startsWith("/")} className="h-9 w-auto md:h-11" />
       ) : (
         <>
-          <span
+          <svg
             aria-hidden
-            className="relative block h-[46px] w-[39px] shrink-0 transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-rotate-6 lg:h-[58px] lg:w-[49px]"
+            viewBox="0 0 120 132"
+            className="relative top-[calc(var(--logo)*-0.056)] h-[calc(var(--logo)*1.02)] w-auto shrink-0 transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-rotate-6"
           >
-            <svg viewBox="0 0 46 54" className="absolute inset-0 size-full" fill="none">
-              <path d="M14 17V13a9 9 0 0 1 18 0v4" className={tone === "light" ? "stroke-white" : "stroke-ink"} strokeWidth="3.5" strokeLinecap="round" />
-              <rect x="2" y="15" width="42" height="38" rx="7" className="fill-accent" />
-              <rect x="2" y="48" width="42" height="5" rx="2.5" fill="rgb(0 0 0 / 0.12)" />
-            </svg>
-            <span className="display absolute inset-x-0 bottom-[3px] text-center text-[26px] leading-[37px] text-white lg:bottom-1 lg:text-[33px] lg:leading-[45px]">
-              {first.charAt(0)}
-            </span>
-          </span>
-          <span aria-hidden className="flex flex-col leading-none">
+            <path d="M37 46V35a23 23 0 0 1 46 0v11" fill="none" stroke={light ? "#F2F1EE" : "#1A120D"} strokeWidth="11" strokeLinecap="round" />
+            <rect x="6" y="34" width="108" height="96" rx="36" fill="#FF5A1F" />
+            <path d="M78.7 67.3A26.5 26.5 0 1 0 86.5 86H63" fill="none" stroke="#fff" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span aria-hidden className="inline-flex flex-col items-end">
             <span
               className={cn(
-                "font-[family-name:var(--font-display)] text-[28px] leading-[0.8] font-black whitespace-nowrap uppercase lg:text-[36px]",
-                tone === "light" ? "text-white" : "text-ink",
+                "font-[family-name:var(--font-logo)] text-[length:var(--logo)] leading-[0.74] font-extrabold tracking-[-0.055em] whitespace-nowrap lowercase",
+                light ? "text-[#F2F1EE]" : "text-[#1A120D]",
               )}
-              style={{ fontVariationSettings: '"wdth" 100' }}
             >
               {first}
             </span>
             {second ? (
-              <span className="mt-1.5 pl-px text-[9px] leading-none font-bold tracking-[0.32em] whitespace-nowrap text-accent uppercase lg:mt-2 lg:text-[11px]">
+              <span className="-mr-[0.3em] mt-[calc(var(--logo)*-0.013)] text-[length:max(13px,calc(var(--logo)*0.21))] leading-none font-extrabold tracking-[0.3em] whitespace-nowrap text-[#FF5A1F] uppercase">
                 {second}
               </span>
             ) : null}

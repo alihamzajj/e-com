@@ -1,11 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, Manrope } from "next/font/google";
+import { Archivo, Manrope, Poppins } from "next/font/google";
 import { Toaster } from "sonner";
 import { getStoreSettings } from "@/features/settings/queries";
 import { publicEnv } from "@/lib/config/public";
 import "./globals.css";
 
 const body = Manrope({ variable: "--font-body", subsets: ["latin"], display: "swap" });
+// Only the "ghani" wordmark in the logo uses Poppins.
+const logo = Poppins({ variable: "--font-logo", subsets: ["latin"], weight: "800", display: "swap" });
 const display = Archivo({
   variable: "--font-display-face",
   subsets: ["latin"],
@@ -33,7 +35,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${body.variable} ${display.variable} antialiased`} suppressHydrationWarning>
+    <html lang="en" className={`${body.variable} ${display.variable} ${logo.variable} antialiased`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: MOTION_BOOT }} />
       </head>

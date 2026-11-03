@@ -25,5 +25,5 @@ export async function saveOrbitProductsAction(input: unknown): Promise<ActionRes
   const { error } = await supabase.from("store_settings").update({ hero }).eq("id", 1);
   if (error) return fail(error, "admin.homepage.save");
   updateTag(SETTINGS_TAG);
-  return { ok: true, data: undefined, message: ids.length ? "Homepage updated." : "Orbit cleared — the homepage shows categories again." };
+  return { ok: true, data: undefined, message: ids.length ? "Homepage updated." : "Orbit cleared — the homepage shows your best sellers." };
 }

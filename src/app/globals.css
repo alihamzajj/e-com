@@ -617,7 +617,8 @@
     box-shadow: 0 0 0 4px var(--accent), 0 10px 28px rgb(255 90 31 / 0.3);
   }
   .porb-upright {
-    display: block;
+    display: grid;
+    place-items: center;
     width: 100%;
     height: 100%;
     animation: porb-spin 60s linear infinite reverse;

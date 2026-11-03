@@ -2,14 +2,14 @@ import Link from "next/link";
 import { ArrowRight, Quote, Sparkles } from "lucide-react";
 import { getStoreSettings } from "@/features/settings/queries";
 import { getCategories, getProductRail, getProductsByIds, getRecentReviews } from "@/features/catalog/queries";
-import { ORBIT_MIN } from "@/features/catalog/home-orbit";
+import { ORBIT_MAX, ORBIT_MIN } from "@/features/catalog/home-orbit";
 import { ProductGrid } from "@/components/products/product-card";
 import { ProductImage } from "@/components/products/product-image";
 import { Button } from "@/components/ui/button";
 import { RatingStars } from "@/components/ui/rating";
 import { NewsletterForm } from "@/components/store/newsletter-form";
 import { OrbitHero } from "@/components/store/orbit-hero";
-import { ProductOrbitHero } from "@/components/store/product-orbit-hero";
+import { defaultOrbitProducts, ProductOrbitHero } from "@/components/store/product-orbit-hero";
 import { SectionHeading } from "@/components/store/section-heading";
 import { SplitWords } from "@/components/motion/split-words";
 import { formatMoney } from "@/lib/utils/format";
@@ -25,7 +25,9 @@ export default async function HomePage() {
     getRecentReviews(3),
   ]);
   const hero = settings.hero;
-  const orbitProducts = await getProductsByIds(hero.product_ids ?? []);
+  // The owner's picks (Admin → Homepage); until there are enough, the best sellers.
+  const picked = await getProductsByIds(hero.product_ids ?? []);
+  const orbitProducts = picked.length >= ORBIT_MIN ? picked : defaultOrbitProducts(await getProductRail("popular", 60), ORBIT_MAX);
   const heroProps = {
     title: hero.title || settings.storeName,
     subtitle: hero.subtitle || settings.tagline || undefined,
@@ -38,7 +40,7 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* The owner's picked products (Admin → Homepage); until there are enough, the category orbit. */}
+      {/* Product orbit; the category orbit only while the shop has fewer than three products. */}
       {orbitProducts.length >= ORBIT_MIN ? (
         <ProductOrbitHero {...heroProps} products={orbitProducts} settings={settings} />
       ) : (

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ProductImage } from "@/components/products/product-image";
 import { ORBIT_OUTER } from "@/features/catalog/home-orbit";
 
-export type OrbitProduct = { id: string; name: string; category: string; price: string; href: string; image: string | null };
+export type OrbitProduct = { id: string; name: string; category: string; price: string; href: string; image: string | null; cutout: boolean };
 
 const OUTER_RADIUS = 42; // % of the stage width
 const INNER_RADIUS = 26;
@@ -55,9 +55,15 @@ export function ProductOrbit({ products }: { products: OrbitProduct[] }) {
         }}
       >
         <span className="porb-upright">
-          <span className="relative block size-full overflow-hidden rounded-full">
-            <ProductImage src={p.image} alt="" fill sizes="120px" loading="eager" draggable={false} className="select-none" />
-          </span>
+          {p.cutout ? (
+            <span className="relative block size-[64%]">
+              <ProductImage src={p.image} alt="" fill sizes="96px" loading="eager" draggable={false} className="object-contain select-none" />
+            </span>
+          ) : (
+            <span className="relative block size-full overflow-hidden rounded-full">
+              <ProductImage src={p.image} alt="" fill sizes="120px" loading="eager" draggable={false} className="select-none" />
+            </span>
+          )}
         </span>
       </button>
     </div>
@@ -79,9 +85,15 @@ export function ProductOrbit({ products }: { products: OrbitProduct[] }) {
 
       <div className="porb-core" aria-live="polite" aria-atomic="true">
         <Link key={current.id} href={current.href} className="porb-core-inner orbit-focus">
-          <span className="relative block aspect-square w-[40%] overflow-hidden rounded-full bg-white ring-4 ring-white/70">
-            <ProductImage src={current.image} alt="" fill sizes="160px" />
-          </span>
+          {current.cutout ? (
+            <span className="relative block aspect-square w-[42%] drop-shadow-[0_6px_10px_rgb(0_0_0/0.18)]">
+              <ProductImage src={current.image} alt="" fill sizes="160px" className="object-contain" />
+            </span>
+          ) : (
+            <span className="relative block aspect-square w-[40%] overflow-hidden rounded-full bg-white ring-4 ring-white/70">
+              <ProductImage src={current.image} alt="" fill sizes="160px" />
+            </span>
+          )}
           <span className="porb-cat display mt-[5%]" style={{ "--len": Math.max(current.category.length, 6) } as React.CSSProperties}>
             {current.category}
           </span>

@@ -84,7 +84,7 @@ export function OrbitPicker({ products, initialIds, currency, locale }: Props) {
 
         {ids.length === 0 ? (
           <p className="rounded-md border border-dashed border-line px-4 py-6 text-center text-sm text-muted">
-            No products picked yet, so the homepage shows your categories instead. Add at least {ORBIT_MIN} below.
+            No products picked yet, so the homepage shows your {ORBIT_MAX} best sellers. Add at least {ORBIT_MIN} below to choose them yourself.
           </p>
         ) : (
           <ol className="grid gap-2">
@@ -120,7 +120,7 @@ export function OrbitPicker({ products, initialIds, currency, locale }: Props) {
         )}
         {ids.length > 0 && ids.length < ORBIT_MIN ? (
           <p role="status" className="text-xs text-warning">
-            Add {ORBIT_MIN - ids.length} more — the orbit needs at least {ORBIT_MIN} products, so the homepage keeps showing categories until then.
+            Add {ORBIT_MIN - ids.length} more — with fewer than {ORBIT_MIN} picked, the homepage shows your best sellers instead.
           </p>
         ) : null}
       </Card>

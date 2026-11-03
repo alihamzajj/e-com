@@ -73,7 +73,7 @@ export function ProductOrbitHero({
   const delay = (n: number) => ({ "--d": `${n}s` }) as React.CSSProperties;
 
   return (
-    <section className="container-page pt-2 pb-6 md:pt-4 lg:pb-16">
+    <section className="container-page overflow-x-clip pt-2 pb-6 md:pt-4 lg:pb-16">
       <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-2 lg:gap-10">
         <div className="lg:order-2">
           <ProductOrbit products={items} />

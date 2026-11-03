@@ -80,7 +80,7 @@ export function ProductOrbitHero({
         </div>
 
         <div className="relative z-10">
-          <h1 className="display text-[clamp(4rem,8.4vw,7.75rem)] leading-[0.9] text-[#1A120D]">
+          <h1 className="display text-[clamp(3.25rem,11vw,4.5rem)] lg:text-[clamp(3.5rem,5.2vw,5.25rem)] leading-[0.9] text-[#1A120D]">
             {rows.map((row, i) => (
               <span key={i} className="orbit-line-mask">
                 <span className={`orbit-rise block${row.accent ? " text-accent" : ""}`} style={delay(0.05 + i * 0.1)}>
@@ -90,7 +90,7 @@ export function ProductOrbitHero({
             ))}
           </h1>
           {subtitle ? (
-            <p className="orbit-rise mt-7 max-w-[34ch] text-base leading-relaxed text-[#5C534C] md:text-lg" style={delay(0.15 + rows.length * 0.1)}>
+            <p className="orbit-rise mt-6 max-w-[38ch] text-base leading-relaxed text-[#5C534C]" style={delay(0.15 + rows.length * 0.1)}>
               {subtitle}
             </p>
           ) : null}

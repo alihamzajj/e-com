@@ -15,7 +15,7 @@ type Props = {
  * brand mark: an orange bag whose white "G" makes the monogram, then the first
  * word of the name in lowercase Poppins and the rest in small spaced-out orange
  * capitals, right-aligned underneath. Everything scales from --logo, the size of
- * the first word; the rest never shrinks below 13px so it stays readable.
+ * the first word; the rest is about a third of it and never below 13px.
  */
 export function Logo({ name, logoUrl, className, tone = "dark" }: Props) {
   const [first, ...rest] = name.trim().split(/\s+/);
@@ -25,7 +25,7 @@ export function Logo({ name, logoUrl, className, tone = "dark" }: Props) {
     <Link
       href="/"
       className={cn(
-        "group inline-flex min-h-10 shrink-0 items-center gap-[calc(var(--logo)*0.16)] [--logo:42px] md:[--logo:54px] lg:[--logo:64px]",
+        "group inline-flex min-h-10 shrink-0 items-center gap-[calc(var(--logo)*0.16)] [--logo:36px] md:[--logo:42px] lg:[--logo:46px]",
         className,
       )}
       aria-label={`${name} home`}
@@ -53,7 +53,7 @@ export function Logo({ name, logoUrl, className, tone = "dark" }: Props) {
               {first}
             </span>
             {second ? (
-              <span className="-mr-[0.3em] mt-[calc(var(--logo)*-0.013)] text-[length:max(13px,calc(var(--logo)*0.21))] leading-none font-extrabold tracking-[0.3em] whitespace-nowrap text-[#FF5A1F] uppercase">
+              <span className="-mr-[0.3em] mt-[calc(var(--logo)*-0.013)] text-[length:max(13px,calc(var(--logo)*0.32))] leading-none font-extrabold tracking-[0.3em] whitespace-nowrap text-[#FF5A1F] uppercase">
                 {second}
               </span>
             ) : null}

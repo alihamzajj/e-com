@@ -8,13 +8,13 @@ import { ORBIT_CUTOUTS } from "@/features/catalog/orbit-cutouts";
 
 /**
  * The orbit looks best with products floating on white, as in the design. Demo
- * photos use their transparent cut-out; a PNG the owner uploads is assumed to be
- * a cut-out too. Anything else is shown as a round photo instead.
+ * photos use their transparent cut-out; photos the owner uploads usually have a
+ * background, so they fill the round bubble instead.
  */
 function orbitImage(url: string | null): { image: string | null; cutout: boolean } {
   const demo = url?.match(/^\/demo\/fashion\/([a-z0-9-]+)\.webp$/);
   if (demo && ORBIT_CUTOUTS.has(demo[1])) return { image: `/demo/fashion/cutout/${demo[1]}.webp`, cutout: true };
-  return { image: url, cutout: Boolean(url && /\.png(\?|$)/i.test(url)) };
+  return { image: url, cutout: false };
 }
 
 /**

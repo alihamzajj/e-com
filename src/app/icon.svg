@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 132">
-  <!-- Ghani Traders G-bag. Favicon / app icon, transparent background. -->
-  <path d="M37 46V35a23 23 0 0 1 46 0v11" fill="none" stroke="#1A120D" stroke-width="11" stroke-linecap="round"/>
-  <rect x="6" y="34" width="108" height="96" rx="36" fill="#FF5A1F"/>
-  <path d="M78.7 67.3A26.5 26.5 0 1 0 86.5 86H63" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 112">
+  <!-- Ghani Traders bag. Favicon / app icon, transparent background. -->
+  <path d="M31 42V31a19 19 0 0 1 38 0v11" fill="none" stroke="#1A120D" stroke-width="10" stroke-linecap="round"/>
+  <rect x="4" y="34" width="92" height="76" rx="18" fill="#FF5A1F"/>
+  <text x="50" y="95" text-anchor="middle" fill="#FFFFFF" font-family="Poppins, 'Arial Black', Arial, Helvetica, sans-serif" font-size="60" font-weight="800">G</text>
 </svg>

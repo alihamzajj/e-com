@@ -19,15 +19,20 @@ function Barcode({ value }: { value: string }) {
 function LabelLogo({ name }: { name: string }) {
   const [first, ...rest] = name.trim().split(/\s+/);
   return (
-    <span className="inline-flex items-center gap-[5px]">
-      <svg viewBox="0 0 120 132" className="h-[0.36in] w-auto" aria-hidden>
-        <path d="M37 46V35a23 23 0 0 1 46 0v11" fill="none" stroke="#000" strokeWidth="11" strokeLinecap="round" />
-        <rect x="6" y="34" width="108" height="96" rx="36" fill="#000" />
-        <path d="M78.7 67.3A26.5 26.5 0 1 0 86.5 86H63" fill="none" stroke="#fff" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
+    <span className="inline-flex items-center gap-[5px] rounded-[6px] border-2 border-black px-[6px] py-[3px]">
+      <svg viewBox="0 0 100 112" className="h-[0.3in] w-auto" aria-hidden>
+        <path d="M31 42V31a19 19 0 0 1 38 0v11" fill="none" stroke="#000" strokeWidth="10" strokeLinecap="round" />
+        <rect x="4" y="34" width="92" height="76" rx="18" fill="#000" />
+        <text x="50" y="95" textAnchor="middle" fill="#fff" fontSize="60" fontWeight="800" style={{ fontFamily: "var(--font-logo)" }}>
+          {first.charAt(0).toUpperCase()}
+        </text>
       </svg>
-      <span className="inline-flex flex-col items-end leading-none">
-        <span className="font-[family-name:var(--font-logo)] text-[22px] leading-[0.74] font-extrabold tracking-[-0.055em] lowercase">{first}</span>
-        {rest.length ? <span className="-mr-[0.3em] mt-[2px] text-[8px] font-extrabold tracking-[0.3em] uppercase">{rest.join(" ")}</span> : null}
+      <span className="h-[0.3in] w-[1.5px] bg-black" aria-hidden />
+      <span className="inline-flex flex-col items-start leading-none">
+        <span className="font-[family-name:var(--font-logo)] text-[17px] leading-[0.8] font-extrabold uppercase">{first}</span>
+        {rest.length ? (
+          <span className="mt-[3px] font-[family-name:var(--font-logo)] text-[7.5px] font-extrabold tracking-[0.38em] uppercase">{rest.join(" ")}</span>
+        ) : null}
       </span>
     </span>
   );

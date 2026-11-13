@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/primitives";
 import { Checkbox, Field, FormError, Input, NativeSelect, Textarea } from "@/components/ui/form-controls";
 import { productSchema } from "@/lib/validation/schemas";
 import { slugify } from "@/lib/utils/format";
-import { discountPercent } from "@/lib/pricing";
+import { compareAtPrice, computeUnitPrice, discountPercent } from "@/lib/pricing";
 import { Price } from "@/components/ui/price";
 import { saveProductAction } from "@/actions/admin/products";
 
@@ -100,8 +100,10 @@ function toInput(v: ProductFormValues) {
         sku,
         title: variant.title.trim() || autoTitle,
         options,
-        price: blank(variant.price),
-        salePrice: blank(variant.salePrice),
+        // Without options there is one version, priced by the product itself;
+        // an old per-variant price would silently override it.
+        price: names.length ? blank(variant.price) : undefined,
+        salePrice: names.length ? blank(variant.salePrice) : undefined,
         stockQuantity: variant.stockQuantity || "0",
         isActive: variant.isActive,
       };
@@ -156,6 +158,8 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
   const variants = useFieldArray({ control, name: "variants", keyName: "key" });
   const names = useWatch({ control, name: "optionNames" });
   const [price, salePrice] = useWatch({ control, name: ["price", "salePrice"] });
+  const watchedVariants = useWatch({ control, name: "variants" });
+  const hasOptions = names.some((n) => n.value.trim());
 
   // After a save the server sends fresh values (new variant ids, normalised
   // fields). Reset only when they actually change so unrelated refreshes (e.g.
@@ -258,8 +262,8 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
           <div>
             <h2 className="text-sm font-semibold">Options & variants</h2>
             <p className="mt-0.5 text-xs text-muted">
-              Selling one version only? Just set its stock below. For sizes or colours, add an option (e.g. Size), then one row per
-              choice. Leave SKU and price empty to fill them in automatically.
+              Selling one version only? Just set its stock below; it uses the price on the right. For sizes or colours, add an option
+              (e.g. Size), then one row per choice. Fill “Own price” only for a choice that costs more or less than the product price.
             </p>
           </div>
           <div className="flex flex-wrap items-end gap-2">
@@ -301,8 +305,12 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
                     <th key={i} className="pb-2 font-medium">{n.value || `Option ${i + 1}`}</th>
                   ))}
                   <th className="pb-2 font-medium">Name</th>
-                  <th className="pb-2 font-medium">Price ({currency})</th>
-                  <th className="pb-2 font-medium">Discounted</th>
+                  {hasOptions ? (
+                    <>
+                      <th className="pb-2 font-medium" title="Leave empty to use the product's price">Own price ({currency})</th>
+                      <th className="pb-2 font-medium" title="Leave empty to use the product's discount">Own discount</th>
+                    </>
+                  ) : null}
                   <th className="pb-2 font-medium">Stock</th>
                   <th className="pb-2 font-medium">Available</th>
                   <th />
@@ -323,13 +331,17 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
                     <td className="py-2 pr-2">
                       <Input aria-label={`Variant ${i + 1} title`} placeholder="Auto" className="h-9 w-36" {...register(`variants.${i}.title`)} />
                     </td>
-                    <td className="py-2 pr-2">
-                      <Input aria-label={`Variant ${i + 1} price`} inputMode="decimal" placeholder="—" className="h-9 w-24" {...register(`variants.${i}.price`)} />
-                    </td>
-                    <td className="py-2 pr-2">
-                      <Input aria-label={`Variant ${i + 1} sale price`} inputMode="decimal" placeholder="—" className="h-9 w-24" aria-invalid={Boolean(err(`variants.${i}.salePrice`))} {...register(`variants.${i}.salePrice`)} />
-                      {err(`variants.${i}.salePrice`) ? <p className="mt-1 max-w-28 text-xs text-danger">{err(`variants.${i}.salePrice`)}</p> : null}
-                    </td>
+                    {hasOptions ? (
+                      <>
+                        <td className="py-2 pr-2">
+                          <Input aria-label={`Variant ${i + 1} own price`} inputMode="decimal" placeholder="Same" className="h-9 w-24" {...register(`variants.${i}.price`)} />
+                        </td>
+                        <td className="py-2 pr-2">
+                          <Input aria-label={`Variant ${i + 1} own discounted price`} inputMode="decimal" placeholder="Same" className="h-9 w-24" aria-invalid={Boolean(err(`variants.${i}.salePrice`))} {...register(`variants.${i}.salePrice`)} />
+                          {err(`variants.${i}.salePrice`) ? <p className="mt-1 max-w-28 text-xs text-danger">{err(`variants.${i}.salePrice`)}</p> : null}
+                        </td>
+                      </>
+                    ) : null}
                     <td className="py-2 pr-2">
                       {v.id ? (
                         <span className="inline-flex h-9 items-center text-xs text-muted" title="Use Inventory below to adjust stock">
@@ -391,7 +403,7 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
           >
             <Input id="salePrice" inputMode="decimal" aria-invalid={Boolean(err("salePrice"))} {...register("salePrice")} />
           </Field>
-          <PricePreview price={price} salePrice={salePrice} currency={currency} />
+          <PricePreview price={price} salePrice={salePrice} variants={hasOptions ? watchedVariants : []} currency={currency} />
           <Field label="Cost price" htmlFor="costPrice" error={err("costPrice")} hint="Private. Used for profit reports.">
             <Input id="costPrice" inputMode="decimal" {...register("costPrice")} />
           </Field>
@@ -413,12 +425,35 @@ export function ProductForm({ productId, initial, categories, currency }: Props)
   );
 }
 
-/** How the price will look on the store, e.g. "PKR 4,500  ~~PKR 6,000~~  −25%". */
-function PricePreview({ price, salePrice, currency }: { price: string; salePrice: string; currency: string }) {
+/**
+ * How the price will look on the store, e.g. "PKR 4,500  ~~PKR 6,000~~  −25%",
+ * worked out with the same rules as the shop (computeUnitPrice). Choices with
+ * their own price are listed so the preview never hides what customers pay.
+ */
+function PricePreview({
+  price,
+  salePrice,
+  variants,
+  currency,
+}: {
+  price: string;
+  salePrice: string;
+  variants: ProductFormValues["variants"];
+  currency: string;
+}) {
   const list = Number(price);
   const sale = salePrice.trim() === "" ? null : Number(salePrice);
   if (!price.trim() || !Number.isFinite(list) || list <= 0) return null;
   const discounted = sale != null && Number.isFinite(sale) && sale > 0 && sale < list;
+  const num = (s: string) => (s.trim() === "" || !Number.isFinite(Number(s)) ? null : Number(s));
+  const productSale = discounted ? sale : null;
+  const own = variants
+    .filter((v) => v.isActive && (num(v.price) !== null || num(v.salePrice) !== null))
+    .map((v) => {
+      const amount = computeUnitPrice(list, productSale, num(v.price), num(v.salePrice));
+      const compareAt = compareAtPrice(list, num(v.price));
+      return { label: v.title.trim() || v.optionValues.filter(Boolean).join(" / ") || "A choice", amount, compareAt };
+    });
   return (
     <div className="grid gap-1.5 rounded-md bg-surface px-3 py-2.5 ring-1 ring-line-soft">
       <p className="text-[11px] font-semibold tracking-[0.12em] text-muted uppercase">Customers will see</p>
@@ -429,6 +464,17 @@ function PricePreview({ price, salePrice, currency }: { price: string; salePrice
         ) : null}
       </div>
       {sale != null && !discounted ? <p className="text-xs text-danger">The discounted price must be lower than the original price.</p> : null}
+      {own.length ? (
+        <div className="mt-1 grid gap-1 border-t border-line-soft pt-2 text-xs">
+          <p className="font-medium text-warning">These choices have their own price:</p>
+          {own.map((o, i) => (
+            <div key={i} className="flex items-center justify-between gap-2">
+              <span className="truncate text-ink-soft">{o.label}</span>
+              <Price amount={o.amount} compareAt={o.amount < o.compareAt ? o.compareAt : null} currency={currency} />
+            </div>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -9,7 +9,7 @@ import { CouponToggle } from "@/components/admin/coupon-form";
 import { Button } from "@/components/ui/button";
 import { Badge, Card, EmptyState, PageHeading } from "@/components/ui/primitives";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
-import { formatDate, formatMoney } from "@/lib/utils/format";
+import { formatDateTime, formatMoney } from "@/lib/utils/format";
 import { couponState } from "@/features/admin/coupons";
 
 export const metadata = { title: "Coupons" };
@@ -30,7 +30,13 @@ async function Coupons() {
     const s = couponState(c);
     if (s === "inactive") return <Badge>Inactive</Badge>;
     if (s === "expired") return <Badge tone="danger">Expired</Badge>;
-    if (s === "scheduled") return <Badge tone="info">Scheduled</Badge>;
+    if (s === "scheduled")
+      return (
+        <>
+          <Badge tone="info">Scheduled</Badge>
+          <span className="mt-1 block text-xs text-muted">Works from {formatDateTime(c.starts_at!, settings.timezone, settings.locale)}</span>
+        </>
+      );
     if (s === "used_up") return <Badge tone="warning">Used up</Badge>;
     return <Badge tone="success">Active</Badge>;
   };
@@ -63,7 +69,7 @@ async function Coupons() {
                   </TD>
                   <TD className="text-muted">{Number(c.min_order_total) > 0 ? money(c.min_order_total) : "—"}</TD>
                   <TD className="text-xs text-muted">
-                    {c.starts_at ? formatDate(c.starts_at, settings.timezone) : "Now"} → {c.ends_at ? formatDate(c.ends_at, settings.timezone) : "No end"}
+                    {c.starts_at ? formatDateTime(c.starts_at, settings.timezone, settings.locale) : "Now"} → {c.ends_at ? formatDateTime(c.ends_at, settings.timezone, settings.locale) : "No end"}
                   </TD>
                   <TD className="text-right tabular-nums">{c.used_count}{c.usage_limit ? ` / ${c.usage_limit}` : ""}</TD>
                   <TD>{state(c)}</TD>

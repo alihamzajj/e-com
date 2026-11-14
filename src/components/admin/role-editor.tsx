@@ -7,7 +7,7 @@ import { useActionRunner } from "@/components/admin/confirm-button";
 import { setUserRoleAction } from "@/actions/admin/staff";
 import { PERMISSIONS, type Permission, type Role } from "@/types/domain";
 
-const LABELS: Record<Permission, string> = {
+export const PERMISSION_LABELS: Record<Permission, string> = {
   products: "Products & inventory",
   orders: "Orders & payments",
   customers: "Customers",
@@ -66,7 +66,7 @@ export function RoleEditor({
                   setPerms(next);
                 }}
               />
-              {LABELS[p]}
+              {PERMISSION_LABELS[p]}
             </label>
           ))}
         </fieldset>

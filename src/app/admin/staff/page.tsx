@@ -6,6 +6,8 @@ import { getStoreSettings } from "@/features/settings/queries";
 import { safeSearch, searchParam } from "@/features/admin/guard";
 import { FilterBar, FilterField, filterInput, SectionCard, TableSkeleton } from "@/components/admin/common";
 import { RoleEditor } from "@/components/admin/role-editor";
+import { CreateStaffForm } from "@/components/admin/create-staff-form";
+import { isServiceRoleConfigured } from "@/lib/config/server";
 import { Badge, PageHeading } from "@/components/ui/primitives";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
 import { formatDateTime } from "@/lib/utils/format";
@@ -48,13 +50,16 @@ async function Staff({ searchParams }: { searchParams: PageProps<"/admin/staff">
 
   return (
     <div className="space-y-5">
-      <PageHeading title="Staff & access" description="Grant staff only the permissions they need. Accounts are created by signing up on the storefront." />
+      <PageHeading title="Staff & access" description="Grant staff only the permissions they need. Create their login here, or give access to someone who already has an account." />
       <SectionCard title="Team" bodyClassName="p-0">
         <ul className="divide-y divide-line-soft">
           {teamRows.map((p) => <PersonRow key={p.id} p={p} selfId={profile.id} />)}
         </ul>
       </SectionCard>
-      <SectionCard title="Add a team member" description="Find an existing account by email or name, then assign a role.">
+      <SectionCard title="Create a staff account" description="Make a login for a new team member. You get a temporary password to send them.">
+        <CreateStaffForm enabled={isServiceRoleConfigured()} />
+      </SectionCard>
+      <SectionCard title="Give an existing account access" description="Find someone who already signed up on the store by email or name, then assign a role.">
         <FilterBar action="/admin/staff">
           <FilterField label="Search accounts" className="min-w-60 flex-1">
             <input name="q" defaultValue={q} placeholder="email@example.com" className={filterInput} />
@@ -62,7 +67,7 @@ async function Staff({ searchParams }: { searchParams: PageProps<"/admin/staff">
         </FilterBar>
         {q ? (
           (found ?? []).length === 0 ? (
-            <p className="mt-4 text-sm text-muted">No accounts match “{q}”. They need to sign up first.</p>
+            <p className="mt-4 text-sm text-muted">No accounts match “{q}”. Use “Create a staff account” above instead.</p>
           ) : (
             <ul className="mt-4 divide-y divide-line-soft rounded-md border border-line-soft">
               {((found ?? []) as P[]).map((p) => <PersonRow key={p.id} p={p} selfId={profile.id} />)}

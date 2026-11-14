@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkoutSchema, couponSchema, productSchema, signUpSchema, supportSchema } from "@/lib/validation/schemas";
+import { checkoutSchema, couponSchema, createStaffSchema, productSchema, signUpSchema, supportSchema } from "@/lib/validation/schemas";
 import { errorCode, userMessage } from "@/lib/errors";
 
 const validCheckout = {
@@ -115,5 +115,18 @@ describe("error mapping", () => {
     expect(userMessage({ message: "new row violates row-level security policy", code: "42501" })).toBe(
       "You do not have permission to do that.",
     );
+  });
+});
+
+describe("createStaffSchema", () => {
+  it("needs at least one permission for staff, none for administrators", () => {
+    expect(createStaffSchema.safeParse({ fullName: "Bilal", email: "bilal@example.com", role: "staff", permissions: [] }).success).toBe(false);
+    expect(createStaffSchema.safeParse({ fullName: "Bilal", email: "bilal@example.com", role: "staff", permissions: ["orders"] }).success).toBe(true);
+    expect(createStaffSchema.safeParse({ fullName: "Sana", email: "SANA@Example.com ", role: "admin" }).data?.email).toBe("sana@example.com");
+  });
+
+  it("rejects a missing name or a bad email", () => {
+    expect(createStaffSchema.safeParse({ fullName: " ", email: "x@example.com", role: "admin" }).success).toBe(false);
+    expect(createStaffSchema.safeParse({ fullName: "Bilal", email: "not-an-email", role: "admin" }).success).toBe(false);
   });
 });

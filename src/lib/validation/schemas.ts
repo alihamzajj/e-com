@@ -249,6 +249,19 @@ export const refundSchema = z.object({
   reason: trimmed(3, 300, "Reason"),
 });
 
+/** Admin creates a team member's login directly (Admin → Staff). */
+export const createStaffSchema = z
+  .object({
+    fullName: trimmed(1, 120, "Name"),
+    email: emailSchema,
+    role: z.enum(["staff", "admin"]),
+    permissions: z.array(z.enum(PERMISSIONS)).default([]),
+  })
+  .refine((v) => v.role === "admin" || v.permissions.length > 0, {
+    message: "Give staff members at least one permission.",
+    path: ["permissions"],
+  });
+
 export const roleSchema = z.object({
   userId: z.uuid(),
   role: z.enum(["customer", "staff", "admin"]),

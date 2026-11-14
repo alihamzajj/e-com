@@ -66,7 +66,7 @@ export function ProductOrbitHero({
     id: p.id,
     name: p.name,
     category: p.category_name ?? "New in",
-    price: formatMoney(p.effective_price, settings.currency, settings.locale),
+    price: formatMoney(p.min_variant_price, settings.currency, settings.locale),
     href: `/products/${p.slug}`,
     ...orbitImage(p.image_url),
   }));

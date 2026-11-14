@@ -35,3 +35,27 @@ export function stockState(quantity: number, lowThreshold: number): StockState {
   if (quantity <= lowThreshold) return "low_stock";
   return "in_stock";
 }
+
+/**
+ * What customers pay for a product across its active variants (the same rule
+ * as the shop): the cheapest and dearest unit price, and the crossed-out price
+ * for the cheapest one when it is discounted. Falls back to the product price
+ * when there are no active variants.
+ */
+export function shopPriceRange(
+  productPrice: Num,
+  productSale: Num,
+  variants: { price: Num; sale_price: Num; is_active: boolean }[],
+): { min: number; max: number; compareAt: number | null } {
+  const active = variants.filter((v) => v.is_active);
+  const priced = (active.length ? active : [{ price: null, sale_price: null, is_active: true }]).map((v) => ({
+    amount: computeUnitPrice(productPrice, productSale, v.price, v.sale_price),
+    compareAt: compareAtPrice(productPrice, v.price),
+  }));
+  const cheapest = priced.reduce((a, b) => (b.amount < a.amount ? b : a));
+  return {
+    min: cheapest.amount,
+    max: Math.max(...priced.map((p) => p.amount)),
+    compareAt: cheapest.amount < cheapest.compareAt ? cheapest.compareAt : null,
+  };
+}

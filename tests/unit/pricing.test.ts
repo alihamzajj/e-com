@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { compareAtPrice, computeUnitPrice, discountPercent, stockState } from "@/lib/pricing";
+import { compareAtPrice, computeUnitPrice, discountPercent, shopPriceRange, stockState } from "@/lib/pricing";
 import { formatMoney, slugify, toNumber } from "@/lib/utils/format";
 
 describe("computeUnitPrice", () => {
@@ -64,5 +64,25 @@ describe("formatting", () => {
   it("slugifies names", () => {
     expect(slugify("Arc 75 — Wireless (Chalk)")).toBe("arc-75-wireless-chalk");
     expect(slugify("Crème brûlée")).toBe("creme-brulee");
+  });
+});
+
+describe("shopPriceRange", () => {
+  it("uses a variant's own sale price over the product's discount", () => {
+    // The "overcoat" case: product 8,000 → 7,500, but its only variant had a stray sale price of 500.
+    expect(shopPriceRange(8000, 7500, [{ price: 8000, sale_price: 500, is_active: true }])).toEqual({ min: 500, max: 500, compareAt: 8000 });
+  });
+
+  it("follows the product price when variants have none of their own", () => {
+    expect(shopPriceRange(8000, 7500, [{ price: null, sale_price: null, is_active: true }])).toEqual({ min: 7500, max: 7500, compareAt: 8000 });
+  });
+
+  it("spans the active variants and ignores inactive ones", () => {
+    const r = shopPriceRange(1200, null, [
+      { price: 2350, sale_price: null, is_active: true },
+      { price: 1500, sale_price: null, is_active: true },
+      { price: 100, sale_price: null, is_active: false },
+    ]);
+    expect(r).toEqual({ min: 1500, max: 2350, compareAt: null });
   });
 });

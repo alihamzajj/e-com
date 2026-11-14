@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { mapSettings } from "@/features/settings/queries";
+import { shopPriceRange } from "@/lib/pricing";
 import { OrbitPicker, type PickerProduct } from "@/components/admin/orbit-picker";
 import { FormSkeleton } from "@/components/admin/common";
 import { Card, PageHeading } from "@/components/ui/primitives";
@@ -15,6 +16,7 @@ type Row = {
   sale_price: number | null;
   category: { name: string } | null;
   product_images: { url: string; position: number }[];
+  product_variants: { price: number | null; sale_price: number | null; is_active: boolean }[];
 };
 
 async function Homepage() {
@@ -24,7 +26,7 @@ async function Homepage() {
     supabase.from("store_settings").select("*").eq("id", 1).maybeSingle(),
     supabase
       .from("products")
-      .select("id, name, price, sale_price, category:categories(name), product_images(url, position)")
+      .select("id, name, price, sale_price, category:categories(name), product_images(url, position), product_variants(price, sale_price, is_active)")
       .eq("status", "active")
       .order("name")
       .limit(1000),
@@ -36,8 +38,9 @@ async function Homepage() {
     id: p.id,
     name: p.name,
     category: p.category?.name ?? null,
-    price: Number(p.price),
-    salePrice: p.sale_price == null ? null : Number(p.sale_price),
+    // The price the bubble will show: what customers pay, variants included.
+    price: shopPriceRange(p.price, p.sale_price, p.product_variants).min,
+    salePrice: null,
     image: [...p.product_images].sort((a, b) => a.position - b.position)[0]?.url ?? null,
   }));
 

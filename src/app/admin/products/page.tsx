@@ -12,6 +12,7 @@ import { Card, EmptyState, PageHeading } from "@/components/ui/primitives";
 import { Pagination } from "@/components/ui/pagination";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
 import { formatDate, formatMoney } from "@/lib/utils/format";
+import { shopPriceRange } from "@/lib/pricing";
 import { cn } from "@/lib/utils/cn";
 
 export const metadata = { title: "Products" };
@@ -29,7 +30,7 @@ type Row = {
   low_stock_threshold: number;
   updated_at: string;
   category: { name: string } | null;
-  product_variants: { stock_quantity: number; is_active: boolean }[];
+  product_variants: { stock_quantity: number; is_active: boolean; price: number | null; sale_price: number | null }[];
   product_images: { url: string; position: number }[];
 };
 
@@ -52,7 +53,7 @@ async function ProductList({ searchParams }: { searchParams: PageProps<"/admin/p
   let query = supabase
     .from("products")
     .select(
-      "id, name, slug, status, price, sale_price, is_featured, low_stock_threshold, updated_at, category:categories(name), product_variants(stock_quantity, is_active), product_images(url, position)",
+      "id, name, slug, status, price, sale_price, is_featured, low_stock_threshold, updated_at, category:categories(name), product_variants(stock_quantity, is_active, price, sale_price), product_images(url, position)",
       { count: "exact" },
     )
     .order("updated_at", { ascending: false })
@@ -125,6 +126,8 @@ async function ProductList({ searchParams }: { searchParams: PageProps<"/admin/p
             <tbody>
               {rows.map((p) => {
                 const active = p.product_variants.filter((v) => v.is_active);
+                // What customers pay, including variants with their own price.
+                const shop = shopPriceRange(p.price, p.sale_price, p.product_variants);
                 const stockTotal = active.reduce((s, v) => s + v.stock_quantity, 0);
                 const low = active.some((v) => v.stock_quantity <= p.low_stock_threshold);
                 const image = [...p.product_images].sort((a, b) => a.position - b.position)[0];
@@ -149,8 +152,9 @@ async function ProductList({ searchParams }: { searchParams: PageProps<"/admin/p
                     <TD className="text-muted">{p.category?.name ?? "—"}</TD>
                     <TD><ProductStatusBadge status={p.status} /></TD>
                     <TD className="text-right tabular-nums">
-                      {formatMoney(p.sale_price ?? p.price, settings.currency, settings.locale)}
-                      {p.sale_price != null ? <span className="block text-xs text-muted line-through">{formatMoney(p.price, settings.currency, settings.locale)}</span> : null}
+                      {shop.max > shop.min ? <span className="text-xs text-muted">from </span> : null}
+                      {formatMoney(shop.min, settings.currency, settings.locale)}
+                      {shop.compareAt != null ? <span className="block text-xs text-muted line-through">{formatMoney(shop.compareAt, settings.currency, settings.locale)}</span> : null}
                     </TD>
                     <TD className={cn("text-right tabular-nums", stockTotal === 0 ? "text-danger" : low ? "text-warning" : "")}>{stockTotal}</TD>
                     <TD className="text-muted">{formatDate(p.updated_at, settings.timezone)}</TD>
